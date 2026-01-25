@@ -45,13 +45,13 @@ Consider Indian climate, monsoon season, and balcony/terrace constraints.`;
           content: prompt
         }
       ],
-      model: 'llama-3.1-70b-versatile',
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.5,
       max_tokens: 1024
     });
 
     const response = completion.choices[0]?.message?.content || '';
-    
+
     console.log('🤖 AI Response:', response.substring(0, 200));
     
     // Extract JSON from response

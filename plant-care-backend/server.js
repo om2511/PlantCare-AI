@@ -23,6 +23,7 @@ app.use('/api/plants', require('./routes/plants'));
 app.use('/api/care', require('./routes/care'));
 app.use('/api/plant-data', require('./routes/plantData'));
 app.use('/api/water-quality', require('./routes/waterQuality'));
+app.use('/api/disease', require('./routes/disease'));
 
 // Health check route
 app.get('/', (req, res) => {
