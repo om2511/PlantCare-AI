@@ -16,8 +16,8 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="text-3xl">🌱</span>
-            <span className="text-2xl font-bold text-primary">Plant Care AI</span>
+            <img src="/logo.png" alt="PlantCare AI" className="h-10 w-10" />
+            <span className="text-2xl font-bold text-primary">PlantCare AI</span>
           </Link>
 
           <div className="flex items-center gap-6">

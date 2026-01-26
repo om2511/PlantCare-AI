@@ -1,4 +1,4 @@
-# Plant Care AI - Backend
+# PlantCare AI - Backend
 
 AI-powered plant care assistant backend built with Node.js, Express, and MongoDB.
 

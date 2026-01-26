@@ -1,4 +1,4 @@
-# Plant Care AI - Frontend
+# PlantCare AI - Frontend
 
 React-based web application for AI-powered plant care management.
 
