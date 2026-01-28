@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { searchPlants, getPlantDetails } = require('../services/plantDataService');
-const { generatePlantSuggestions } = require('../services/aiServiceGroq');
+const { generatePlantSuggestions, getCurrentSeason } = require('../services/aiServiceGroq');
 const { protect } = require('../middleware/auth');
 
 // @desc    Search plants from external API
@@ -69,23 +69,46 @@ router.get('/suggestions/ai', protect, async (req, res) => {
       sunlightHours: req.user.sunlightHours || 6
     };
 
-    // First, search for common Indian plants
-    console.log('🔍 Searching for plants...');
-    const commonPlants = await searchPlants('tomato', 1);
-    
-    // DEBUG: Log the response
-    console.log('📦 Search result:', JSON.stringify(commonPlants, null, 2));
-    
-    if (!commonPlants.success) {
-      console.error('❌ Search failed:', commonPlants);
-      return res.status(500).json({
-        success: false,
-        message: 'Unable to fetch plant data for suggestions',
-        debug: commonPlants // Show actual error
-      });
+    // Search for diverse plant categories to give AI variety
+    const searchTerms = [
+      'tomato',
+      'rose',
+      'basil',
+      'mint',
+      'jasmine',
+      'marigold',
+      'aloe',
+      'snake plant',
+      'tulsi',
+      'hibiscus'
+    ];
+
+    console.log('🔍 Searching for diverse plants...');
+
+    // Search multiple categories in parallel
+    const searchPromises = searchTerms.map(term => searchPlants(term, 1));
+    const searchResults = await Promise.all(searchPromises);
+
+    // Combine and deduplicate plants
+    const allPlants = [];
+    const seenNames = new Set();
+
+    for (const result of searchResults) {
+      if (result.success && result.data) {
+        for (const plant of result.data) {
+          // Normalize name for comparison
+          const normalizedName = plant.name.toLowerCase().trim();
+          if (!seenNames.has(normalizedName)) {
+            seenNames.add(normalizedName);
+            allPlants.push(plant);
+          }
+        }
+      }
     }
 
-    if (commonPlants.data.length === 0) {
+    console.log(`✅ Found ${allPlants.length} unique plants from ${searchTerms.length} searches`);
+
+    if (allPlants.length === 0) {
       console.error('❌ No plants found');
       return res.status(500).json({
         success: false,
@@ -93,17 +116,40 @@ router.get('/suggestions/ai', protect, async (req, res) => {
       });
     }
 
-    console.log(`✅ Found ${commonPlants.data.length} plants`);
+    // Shuffle the plants array for variety
+    const shuffledPlants = allPlants.sort(() => Math.random() - 0.5);
 
-    // Get AI suggestions
-    const suggestions = await generatePlantSuggestions(userConditions, commonPlants.data);
+    // Get AI suggestions with diverse plant options
+    const suggestions = await generatePlantSuggestions(userConditions, shuffledPlants);
+
+    // Ensure we have exactly 5 unique suggestions
+    let uniqueSuggestions = [...new Set(suggestions.suggestions)];
+
+    // If AI returned duplicates, fill with random plants from our list
+    if (uniqueSuggestions.length < 5) {
+      const availableNames = allPlants.map(p => p.name);
+      for (const name of availableNames) {
+        if (!uniqueSuggestions.includes(name) && uniqueSuggestions.length < 5) {
+          uniqueSuggestions.push(name);
+        }
+      }
+    }
+
+    // Limit to 5 suggestions
+    uniqueSuggestions = uniqueSuggestions.slice(0, 5);
 
     res.status(200).json({
       success: true,
       userConditions,
-      suggestions: suggestions.suggestions,
+      currentSeason: getCurrentSeason(),
+      suggestions: uniqueSuggestions,
       reasoning: suggestions.reasoning,
-      availablePlants: commonPlants.data.map(p => p.name) // Show what was available
+      availablePlants: allPlants.slice(0, 20).map(p => ({
+        name: p.name,
+        scientificName: p.scientificName,
+        sunlight: p.sunlight,
+        watering: p.watering
+      }))
     });
   } catch (error) {
     console.error('❌ AI suggestions error:', error);
