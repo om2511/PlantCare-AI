@@ -171,12 +171,12 @@ Provide water quality advice for this plant. Return ONLY valid JSON (no markdown
     });
 
     const response = completion.choices[0]?.message?.content || '';
-    
+
     const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('AI did not return valid JSON');
     }
-    
+
     return JSON.parse(jsonMatch[0]);
   } catch (error) {
     console.error('❌ AI water quality advice error:', error.message);
@@ -185,6 +185,55 @@ Provide water quality advice for this plant. Return ONLY valid JSON (no markdown
       recommendation: 'This water source is generally suitable for most plants',
       preparation: 'Let water sit for 24 hours before use',
       frequency: 'Can be used regularly'
+    };
+  }
+};
+
+/**
+ * Generate general water quality advice (without specific plant)
+ */
+const generateGeneralWaterQualityAdvice = async (waterSource) => {
+  try {
+    const prompt = `You are a plant care expert specializing in water quality for Indian gardening conditions.
+
+Water Source: ${waterSource}
+
+Provide general water quality advice for houseplants and garden plants. Consider Indian water conditions.
+Return ONLY valid JSON (no markdown):
+{
+  "suitability": "<excellent/good/suitable/not-recommended>",
+  "recommendation": "<detailed recommendation for using this water type for plants in general>",
+  "preparation": "<any preparation needed before using this water, specific steps>",
+  "frequency": "<how often this water type can be used and any rotation recommendations>"
+}`;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.5,
+      max_tokens: 512
+    });
+
+    const response = completion.choices[0]?.message?.content || '';
+
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('AI did not return valid JSON');
+    }
+
+    return JSON.parse(jsonMatch[0]);
+  } catch (error) {
+    console.error('❌ AI general water quality advice error:', error.message);
+    return {
+      suitability: 'suitable',
+      recommendation: 'This water source is generally suitable for most plants. Monitor your plants for any signs of mineral buildup or stress.',
+      preparation: 'Let tap water sit for 24 hours to allow chlorine to evaporate. For RO water, consider adding a small amount of fertilizer as it lacks minerals.',
+      frequency: 'Can be used regularly for most plants. Consider alternating with rainwater when available for optimal plant health.'
     };
   }
 };
@@ -263,6 +312,7 @@ module.exports = {
   generateCareSchedule,
   generateSeasonalTips,
   generateWaterQualityAdvice,
+  generateGeneralWaterQualityAdvice,
   generatePlantSuggestions,
   getCurrentSeason
 };

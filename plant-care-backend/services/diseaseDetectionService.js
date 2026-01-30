@@ -131,6 +131,136 @@ Respond with JSON only.`
 };
 
 /**
+ * Analyze plant symptoms from text description using Groq AI
+ */
+const analyzeTextSymptoms = async (plantName, symptoms) => {
+  try {
+    console.log('📝 Analyzing symptoms from text...');
+
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert plant pathologist specializing in Indian plants and climate conditions. Analyze plant symptoms and provide disease diagnosis with treatment recommendations.
+
+IMPORTANT: Always respond with ONLY valid JSON, no markdown code blocks, no extra text.
+
+Response format:
+{
+  "isHealthy": boolean,
+  "confidence": number (0-100),
+  "disease": "string (name of the disease or 'Healthy Plant')",
+  "plantType": "string",
+  "severity": "mild" | "moderate" | "severe" | null,
+  "symptoms": ["string - list of identified symptoms"],
+  "causes": ["string - possible causes"],
+  "treatment": {
+    "immediate": "string - what to do right now",
+    "shortTerm": "string - what to do in 1-2 weeks",
+    "longTerm": "string - long-term prevention",
+    "organicOptions": ["string - natural remedies"],
+    "chemicalOptions": ["string - chemical treatments if needed"]
+  },
+  "prevention": ["string - tips to prevent recurrence"]
+}`
+        },
+        {
+          role: 'user',
+          content: `Analyze these plant symptoms and provide a diagnosis:
+
+Plant Name: ${plantName || 'Unknown plant'}
+Symptoms Described: ${symptoms}
+
+Based on these symptoms, identify the most likely disease or condition and provide detailed treatment recommendations suitable for Indian gardeners. Consider common diseases in Indian climate.
+
+Respond with JSON only.`
+        }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.3,
+      max_tokens: 1024
+    });
+
+    const responseText = completion.choices[0]?.message?.content || '';
+    console.log('📝 AI response received for text analysis');
+
+    // Parse JSON from response
+    let jsonText = responseText.trim();
+
+    // Remove markdown code blocks if present
+    if (jsonText.includes('```')) {
+      jsonText = jsonText.replace(/```json\n?/gi, '').replace(/```\n?/g, '');
+    }
+
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error('Raw response:', responseText);
+      throw new Error('AI did not return valid JSON');
+    }
+
+    const analysis = JSON.parse(jsonMatch[0]);
+
+    // Ensure all required fields have defaults
+    const result = {
+      isHealthy: analysis.isHealthy ?? false,
+      confidence: analysis.confidence ?? 70,
+      disease: analysis.disease || 'Unknown condition',
+      plantType: analysis.plantType || plantName || 'Unknown plant',
+      severity: analysis.isHealthy ? null : (analysis.severity || 'moderate'),
+      symptoms: analysis.symptoms || [symptoms],
+      causes: analysis.causes || ['Multiple factors possible'],
+      treatment: {
+        immediate: analysis.treatment?.immediate || 'Isolate plant and assess damage',
+        shortTerm: analysis.treatment?.shortTerm || 'Monitor closely for changes',
+        longTerm: analysis.treatment?.longTerm || 'Maintain proper care routine',
+        organicOptions: analysis.treatment?.organicOptions || ['Neem oil spray', 'Remove affected parts'],
+        chemicalOptions: analysis.treatment?.chemicalOptions || ['Consult local garden center']
+      },
+      prevention: analysis.prevention || [
+        'Regular monitoring',
+        'Proper watering',
+        'Good air circulation'
+      ]
+    };
+
+    console.log('✅ Text-based disease analysis complete');
+
+    return {
+      success: true,
+      data: result
+    };
+  } catch (error) {
+    console.error('❌ Text analysis error:', error.message);
+
+    // Handle rate limiting
+    if (error.message?.includes('429') || error.message?.includes('rate')) {
+      return {
+        success: false,
+        message: 'Rate limit exceeded. Please try again in a moment.',
+        error: 'RATE_LIMITED'
+      };
+    }
+
+    // Handle authentication errors
+    if (error.message?.includes('401') || error.message?.includes('invalid_api_key')) {
+      return {
+        success: false,
+        message: 'API authentication failed. Please check your API key.',
+        error: 'AUTH_ERROR'
+      };
+    }
+
+    return {
+      success: false,
+      message: 'Failed to analyze symptoms. Please try again.',
+      error: error.message
+    };
+  }
+};
+
+/**
  * Get disease information from text using Groq
  */
 const getDiseaseInfo = async (diseaseDescription) => {
@@ -178,5 +308,6 @@ Return ONLY JSON:
 
 module.exports = {
   analyzePlantImage,
+  analyzeTextSymptoms,
   getDiseaseInfo
 };

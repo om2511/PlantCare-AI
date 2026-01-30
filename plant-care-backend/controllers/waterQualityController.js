@@ -1,5 +1,5 @@
 const Plant = require('../models/Plant');
-const { generateWaterQualityAdvice } = require('../services/aiServiceGroq');
+const { generateWaterQualityAdvice, generateGeneralWaterQualityAdvice } = require('../services/aiServiceGroq');
 
 // @desc    Get water quality advice for a plant
 // @route   GET /api/water-quality/:plantId/:waterSource
@@ -55,6 +55,44 @@ const getWaterQualityAdvice = async (req, res) => {
   }
 };
 
+// @desc    Get general water quality advice (without specific plant)
+// @route   GET /api/water-quality/general/:waterSource
+// @access  Private
+const getGeneralWaterQualityAdvice = async (req, res) => {
+  try {
+    const { waterSource } = req.params;
+
+    // Validate water source
+    const validSources = ['tap', 'ro', 'rainwater', 'borewell', 'filtered'];
+    if (!validSources.includes(waterSource.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid water source. Must be one of: tap, ro, rainwater, borewell, filtered'
+      });
+    }
+
+    // Get AI-generated general water quality advice
+    const advice = await generateGeneralWaterQualityAdvice(waterSource);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        plant: 'General Plants',
+        waterSource,
+        advice
+      }
+    });
+  } catch (error) {
+    console.error('General water quality advice error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating water quality advice',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
-  getWaterQualityAdvice
+  getWaterQualityAdvice,
+  getGeneralWaterQualityAdvice
 };

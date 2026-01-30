@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getWaterQualityAdvice } = require('../controllers/waterQualityController');
+const { getWaterQualityAdvice, getGeneralWaterQualityAdvice } = require('../controllers/waterQualityController');
 const { protect } = require('../middleware/auth');
 
-// Protected route
+// Protected routes
+router.get('/general/:waterSource', protect, getGeneralWaterQualityAdvice);
 router.get('/:plantId/:waterSource', protect, getWaterQualityAdvice);
 
 module.exports = router;

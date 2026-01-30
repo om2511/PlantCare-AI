@@ -1,5 +1,5 @@
 const Plant = require('../models/Plant');
-const { analyzePlantImage } = require('../services/diseaseDetectionService');
+const { analyzePlantImage, analyzeTextSymptoms } = require('../services/diseaseDetectionService');
 
 // @desc    Upload and analyze plant image for disease
 // @route   POST /api/disease/analyze
@@ -45,7 +45,7 @@ const analyzeDisease = async (req, res) => {
     // If plantId provided, update plant status
     if (plantId) {
       const plant = await Plant.findById(plantId);
-      
+
       if (plant && plant.userId.toString() === req.user._id.toString()) {
         // Update plant status based on analysis
         if (!analysis.data.isHealthy) {
@@ -81,6 +81,68 @@ const analyzeDisease = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error analyzing image',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Analyze disease from text description
+// @route   POST /api/disease/analyze-text
+// @access  Private
+const analyzeDiseaseByText = async (req, res) => {
+  try {
+    const { plantName, symptoms, plantId } = req.body;
+
+    if (!symptoms || symptoms.trim().length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide symptoms description'
+      });
+    }
+
+    console.log('📝 Analyzing symptoms by text...');
+
+    // Analyze symptoms with AI
+    const analysis = await analyzeTextSymptoms(plantName, symptoms);
+
+    if (!analysis.success) {
+      return res.status(500).json({
+        success: false,
+        message: analysis.message || 'Failed to analyze symptoms',
+        error: analysis.error
+      });
+    }
+
+    // If plantId provided, update plant status
+    if (plantId) {
+      const plant = await Plant.findById(plantId);
+
+      if (plant && plant.userId.toString() === req.user._id.toString()) {
+        // Update plant status based on analysis
+        if (!analysis.data.isHealthy) {
+          plant.status = analysis.data.severity === 'severe' ? 'diseased' : 'needs-attention';
+          plant.healthScore = Math.max(20, 100 - (analysis.data.confidence || 50));
+        } else {
+          plant.status = 'healthy';
+          plant.healthScore = Math.min(100, analysis.data.confidence || 90);
+        }
+
+        await plant.save();
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        analysis: analysis.data,
+        plantUpdated: !!plantId
+      }
+    });
+  } catch (error) {
+    console.error('Analyze disease by text error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error analyzing symptoms',
       error: error.message
     });
   }
@@ -124,5 +186,6 @@ const getPlantImages = async (req, res) => {
 
 module.exports = {
   analyzeDisease,
+  analyzeDiseaseByText,
   getPlantImages
 };

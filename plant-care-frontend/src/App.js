@@ -8,6 +8,7 @@ import AddPlant from './pages/dashboard/AddPlant';
 import PlantDetails from './pages/dashboard/PlantDetails';
 import Suggestions from './pages/dashboard/Suggestions';
 import DiseaseDetection from './pages/dashboard/DiseaseDetection';
+import WaterQuality from './pages/dashboard/WaterQuality';
 import Home from './pages/Home';
 
 // Protected Route Component
@@ -74,6 +75,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <DiseaseDetection />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/water-quality"
+            element={
+              <ProtectedRoute>
+                <WaterQuality />
               </ProtectedRoute>
             }
           />
