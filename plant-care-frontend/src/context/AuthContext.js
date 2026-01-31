@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authAPI.updateProfile(userData);
-      
+
       if (response.data.success) {
         const updatedUser = response.data.data;
         localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -93,6 +93,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update user state directly (used after profile update API calls)
+  const updateUser = (userData) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
   const value = {
     user,
     loading,
@@ -101,6 +107,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateProfile,
+    updateUser,
     isAuthenticated: !!user
   };
 
