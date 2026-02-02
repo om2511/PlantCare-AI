@@ -7,7 +7,6 @@ import api, { authAPI } from '../../utils/api';
 const Profile = () => {
   const navigate = useNavigate();
   const { user, updateUser, logout } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');

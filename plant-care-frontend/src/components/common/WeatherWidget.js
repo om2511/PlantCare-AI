@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 const WeatherWidget = ({ compact = false }) => {
@@ -7,11 +7,7 @@ const WeatherWidget = ({ compact = false }) => {
   const [error, setError] = useState(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    fetchWeather();
-  }, [user]);
-
-  const fetchWeather = async () => {
+  const fetchWeather = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -54,7 +50,11 @@ const WeatherWidget = ({ compact = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchWeather();
+  }, [fetchWeather]);
 
   // Weather code to icon and description mapping
   const getWeatherInfo = (code) => {
