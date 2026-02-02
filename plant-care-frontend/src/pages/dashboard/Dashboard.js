@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { plantAPI } from '../../utils/api';
 import Layout from '../../components/layout/Layout';
+import WeatherWidget from '../../components/common/WeatherWidget';
 import { useAuth } from '../../context/AuthContext';
 
 const Dashboard = () => {
@@ -201,32 +202,54 @@ const Dashboard = () => {
             />
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <QuickActionCard
-              to="/disease-detection"
-              icon="🔬"
-              title="Disease Detection"
-              gradient="from-rose-500 to-pink-500"
-            />
-            <QuickActionCard
-              to="/suggestions"
-              icon="💡"
-              title="AI Suggestions"
-              gradient="from-blue-500 to-cyan-500"
-            />
-            <QuickActionCard
-              to="/care-reminders"
-              icon="🔔"
-              title="Care Reminders"
-              gradient="from-amber-500 to-orange-500"
-            />
-            <QuickActionCard
-              to="/water-quality"
-              icon="💧"
-              title="Water Quality"
-              gradient="from-cyan-500 to-teal-500"
-            />
+          {/* Weather Widget & Quick Actions */}
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Weather Widget */}
+            <div className="lg:col-span-1">
+              <WeatherWidget />
+            </div>
+
+            {/* Quick Actions */}
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <QuickActionCard
+                  to="/disease-detection"
+                  icon="🔬"
+                  title="Disease Detection"
+                  gradient="from-rose-500 to-pink-500"
+                />
+                <QuickActionCard
+                  to="/suggestions"
+                  icon="💡"
+                  title="AI Suggestions"
+                  gradient="from-blue-500 to-cyan-500"
+                />
+                <QuickActionCard
+                  to="/care-reminders"
+                  icon="🔔"
+                  title="Care Reminders"
+                  gradient="from-amber-500 to-orange-500"
+                />
+                <QuickActionCard
+                  to="/water-quality"
+                  icon="💧"
+                  title="Water Quality"
+                  gradient="from-cyan-500 to-teal-500"
+                />
+                <QuickActionCard
+                  to="/analytics"
+                  icon="📊"
+                  title="Analytics"
+                  gradient="from-indigo-500 to-purple-500"
+                />
+                <QuickActionCard
+                  to="/add-plant"
+                  icon="➕"
+                  title="Add Plant"
+                  gradient="from-green-500 to-emerald-500"
+                />
+              </div>
+            </div>
           </div>
 
           {/* All Plants Section */}

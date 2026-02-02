@@ -12,6 +12,7 @@ import DiseaseDetection from './pages/dashboard/DiseaseDetection';
 import WaterQuality from './pages/dashboard/WaterQuality';
 import Profile from './pages/dashboard/Profile';
 import CareReminders from './pages/dashboard/CareReminders';
+import Analytics from './pages/dashboard/Analytics';
 import Settings from './pages/dashboard/Settings';
 import NotFound from './pages/NotFound';
 import Home from './pages/Home';
@@ -105,6 +106,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CareReminders />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
                 </ProtectedRoute>
               }
             />

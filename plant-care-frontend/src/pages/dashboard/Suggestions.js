@@ -81,6 +81,7 @@ const Suggestions = () => {
   if (loading) {
     return (
       <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
         <div className="max-w-4xl mx-auto">
           {/* Loading Header */}
           <div className="text-center py-16">
@@ -91,8 +92,8 @@ const Suggestions = () => {
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">AI is Analyzing Your Garden</h2>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">AI is Analyzing Your Garden</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
               Our AI is analyzing your location, climate, and growing conditions to find the perfect plants for you...
             </p>
 
@@ -106,14 +107,14 @@ const Suggestions = () => {
               ].map((step, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-4 bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-pulse"
+                  className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 animate-pulse"
                   style={{ animationDelay: step.delay }}
                 >
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center text-xl">
                     {step.icon}
                   </div>
                   <div className="flex-1 text-left">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
                   </div>
                   <div className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
                 </div>
@@ -121,12 +122,14 @@ const Suggestions = () => {
             </div>
           </div>
         </div>
+        </div>
       </Layout>
     );
   }
 
   return (
     <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -134,10 +137,10 @@ const Suggestions = () => {
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             AI-Powered Recommendations
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white mb-3">
             Plant Suggestions for You
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Based on your location, climate, and growing conditions, our AI has selected the best plants that will thrive in your garden.
           </p>
         </div>
@@ -167,7 +170,7 @@ const Suggestions = () => {
         {suggestions && (
           <>
             {/* User Conditions Card */}
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
               <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-6 text-white">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -220,14 +223,14 @@ const Suggestions = () => {
             </div>
 
             {/* AI Analysis Card */}
-            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 rounded-3xl p-6 sm:p-8 border border-purple-200">
+            <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-rose-900/30 rounded-3xl p-6 sm:p-8 border border-purple-200 dark:border-purple-700">
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg flex-shrink-0">
                   🧠
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800 mb-2">AI Analysis</h2>
-                  <p className="text-gray-700 leading-relaxed">{suggestions.reasoning}</p>
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">AI Analysis</h2>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{suggestions.reasoning}</p>
                 </div>
               </div>
             </div>
@@ -236,12 +239,12 @@ const Suggestions = () => {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">Recommended Plants</h2>
-                  <p className="text-gray-500">Top {suggestions.suggestions.length} plants perfect for your conditions</p>
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Recommended Plants</h2>
+                  <p className="text-gray-500 dark:text-gray-400">Top {suggestions.suggestions.length} plants perfect for your conditions</p>
                 </div>
                 <button
                   onClick={fetchSuggestions}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-xl font-medium hover:bg-green-200 transition-all"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-xl font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-all"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -256,7 +259,7 @@ const Suggestions = () => {
                   return (
                     <div
                       key={index}
-                      className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
+                      className="group bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
                     >
                       {/* Rank Banner */}
                       <div className={`bg-gradient-to-r ${rank.color} p-3 flex items-center justify-between`}>
@@ -274,10 +277,10 @@ const Suggestions = () => {
                             🌱
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg text-gray-800 truncate group-hover:text-green-600 transition-colors">
+                            <h3 className="font-bold text-lg text-gray-800 dark:text-white truncate group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                               {plantName}
                             </h3>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               Perfect for your {suggestions.userConditions.balconyType}
                             </p>
                           </div>
@@ -313,14 +316,14 @@ const Suggestions = () => {
 
             {/* Available Plants Section */}
             {suggestions.availablePlants && suggestions.availablePlants.length > 0 && (
-              <div className="bg-white rounded-3xl shadow-lg p-6 sm:p-8 border border-gray-100">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-lg p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center text-white shadow-lg">
                     <span className="text-xl">🌿</span>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-800">More Plants to Explore</h2>
-                    <p className="text-sm text-gray-500">Other plants that grow well in India</p>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">More Plants to Explore</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Other plants that grow well in India</p>
                   </div>
                 </div>
 
@@ -330,15 +333,15 @@ const Suggestions = () => {
                       key={index}
                       to="/add-plant"
                       state={{ searchQuery: plant.name }}
-                      className="group p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-green-400 hover:bg-green-50 transition-all"
+                      className="group p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition-all"
                     >
-                      <h4 className="font-semibold text-gray-800 truncate group-hover:text-green-600 transition-colors">
+                      <h4 className="font-semibold text-gray-800 dark:text-white truncate group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
                         {plant.name}
                       </h4>
                       {plant.scientificName && (
-                        <p className="text-xs text-gray-500 italic truncate">{plant.scientificName}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 italic truncate">{plant.scientificName}</p>
                       )}
-                      <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                      <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                         {plant.sunlight && (
                           <span>☀️ {Array.isArray(plant.sunlight) ? plant.sunlight[0] : plant.sunlight}</span>
                         )}
@@ -419,29 +422,30 @@ const Suggestions = () => {
           </>
         )}
       </div>
+      </div>
     </Layout>
   );
 };
 
 // Condition Card Component
 const ConditionCard = ({ icon, label, value, gradient }) => (
-  <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 hover:shadow-md transition-all">
+  <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border border-gray-100 dark:border-gray-600 hover:shadow-md transition-all">
     <div className={`w-10 h-10 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center text-xl shadow-md mb-2`}>
       {icon}
     </div>
-    <p className="text-xs text-gray-500 mb-1">{label}</p>
-    <p className="font-bold text-gray-800 capitalize truncate">{value}</p>
+    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
+    <p className="font-bold text-gray-800 dark:text-white capitalize truncate">{value}</p>
   </div>
 );
 
 // Tip Card Component
 const TipCard = ({ icon, title, description, gradient }) => (
-  <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all">
     <div className={`w-12 h-12 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center text-2xl shadow-lg mb-3`}>
       {icon}
     </div>
-    <h3 className="font-bold text-gray-800 mb-2">{title}</h3>
-    <p className="text-sm text-gray-600">{description}</p>
+    <h3 className="font-bold text-gray-800 dark:text-white mb-2">{title}</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
   </div>
 );
 

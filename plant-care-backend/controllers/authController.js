@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Plant = require('../models/Plant');
+const CareLog = require('../models/CareLog');
 const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
@@ -194,9 +196,68 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// @desc    Delete user account
+// @route   DELETE /api/auth/account
+// @access  Private
+const deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Verify password before deletion
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your password to confirm account deletion'
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Verify password
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      return res.status(401).json({
+        success: false,
+        message: 'Incorrect password'
+      });
+    }
+
+    // Delete all user's care logs
+    await CareLog.deleteMany({ userId: userId });
+
+    // Delete all user's plants
+    await Plant.deleteMany({ userId: userId });
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Account deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error deleting account',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
-  updateProfile
+  updateProfile,
+  deleteAccount
 };

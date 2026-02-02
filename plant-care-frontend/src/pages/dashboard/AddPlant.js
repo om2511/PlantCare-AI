@@ -125,6 +125,7 @@ const AddPlant = () => {
 
   return (
     <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -137,8 +138,8 @@ const AddPlant = () => {
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Add New Plant</h1>
-          <p className="text-gray-600 mt-2">Let's add a new member to your garden family</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white">Add New Plant</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Let's add a new member to your garden family</p>
         </div>
 
         {/* Progress Steps */}
@@ -157,8 +158,8 @@ const AddPlant = () => {
                 ) : '1'}
               </div>
               <div className="ml-3 hidden sm:block">
-                <p className={`font-semibold ${step >= 1 ? 'text-green-600' : 'text-gray-400'}`}>Find Plant</p>
-                <p className="text-sm text-gray-500">Search our database</p>
+                <p className={`font-semibold ${step >= 1 ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>Find Plant</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Search our database</p>
               </div>
             </div>
 
@@ -175,8 +176,8 @@ const AddPlant = () => {
                 2
               </div>
               <div className="ml-3 hidden sm:block">
-                <p className={`font-semibold ${step >= 2 ? 'text-green-600' : 'text-gray-400'}`}>Plant Details</p>
-                <p className="text-sm text-gray-500">Add information</p>
+                <p className={`font-semibold ${step >= 2 ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>Plant Details</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Add information</p>
               </div>
             </div>
           </div>
@@ -184,21 +185,21 @@ const AddPlant = () => {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-xl animate-fade-in">
+          <div className="mb-6 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-xl animate-fade-in">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
-              <p className="text-red-700 font-medium">{error}</p>
+              <p className="text-red-700 dark:text-red-400 font-medium">{error}</p>
             </div>
           </div>
         )}
 
         {/* Step 1: Search */}
         {step === 1 && (
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
             {/* Search Header */}
             <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-6 sm:p-8 text-white">
               <div className="flex items-center gap-4 mb-4">
@@ -253,7 +254,7 @@ const AddPlant = () => {
               {searchResults.length > 0 ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                    <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
                       <span className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm">
                         {searchResults.length}
                       </span>
@@ -266,24 +267,24 @@ const AddPlant = () => {
                       <button
                         key={plant.id}
                         onClick={() => handleSelectPlant(plant)}
-                        className="group text-left p-5 bg-gray-50 border-2 border-gray-200 rounded-2xl hover:border-green-400 hover:bg-green-50 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
+                        className="group text-left p-5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
                       >
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
                             🌱
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-gray-800 group-hover:text-green-600 transition-colors truncate">{plant.name}</h4>
-                            <p className="text-sm text-gray-500 italic truncate">{plant.scientificName}</p>
+                            <h4 className="font-bold text-gray-800 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors truncate">{plant.name}</h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 italic truncate">{plant.scientificName}</p>
                             <div className="mt-2 flex flex-wrap gap-2">
-                              <span className="inline-flex items-center gap-1 text-xs bg-white px-2 py-1 rounded-full border border-gray-200">
+                              <span className="inline-flex items-center gap-1 text-xs bg-white dark:bg-gray-600 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-500 text-gray-700 dark:text-gray-300">
                                 <span>🏷️</span> {plant.type}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-xs bg-white px-2 py-1 rounded-full border border-gray-200">
+                              <span className="inline-flex items-center gap-1 text-xs bg-white dark:bg-gray-600 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-500 text-gray-700 dark:text-gray-300">
                                 <span>📊</span> {plant.difficulty}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
                               <span>☀️</span> {plant.sunlight}
                             </p>
                           </div>
@@ -294,22 +295,22 @@ const AddPlant = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-4xl">🔍</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Search for Plants</h3>
-                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Search for Plants</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
                     Enter the name of your plant to find it in our database and get personalized AI care recommendations.
                   </p>
                 </div>
               )}
 
               {/* Skip Search */}
-              <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-                <p className="text-gray-600 mb-3">Can't find your plant in our database?</p>
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+                <p className="text-gray-600 dark:text-gray-400 mb-3">Can't find your plant in our database?</p>
                 <button
                   onClick={handleSkipSearch}
-                  className="inline-flex items-center gap-2 text-green-600 font-semibold hover:text-green-700 transition-colors group"
+                  className="inline-flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold hover:text-green-700 dark:hover:text-green-300 transition-colors group"
                 >
                   <span>Add plant manually</span>
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,15 +327,15 @@ const AddPlant = () => {
           <div className="space-y-6">
             {/* Selected Plant Info */}
             {selectedPlant && (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-5 animate-fade-in">
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-200 dark:border-green-700 rounded-2xl p-5 animate-fade-in">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
                       🌱
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-800 text-lg">{selectedPlant.name}</h3>
-                      <p className="text-sm text-gray-600">{selectedPlant.scientificName}</p>
+                      <h3 className="font-bold text-gray-800 dark:text-white text-lg">{selectedPlant.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedPlant.scientificName}</p>
                       {selectedPlant.hindiName && (
                         <p className="text-sm text-green-600">{selectedPlant.hindiName}</p>
                       )}
@@ -357,7 +358,7 @@ const AddPlant = () => {
             )}
 
             {/* Details Form */}
-            <div className="bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-white">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,8 +366,8 @@ const AddPlant = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800">Plant Details</h2>
-                  <p className="text-gray-500">Fill in the information about your plant</p>
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Plant Details</h2>
+                  <p className="text-gray-500 dark:text-gray-400">Fill in the information about your plant</p>
                 </div>
               </div>
 
@@ -374,9 +375,9 @@ const AddPlant = () => {
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Nickname <span className="text-red-500">*</span>
-                      <span className="text-xs font-normal text-gray-500 ml-1">(Give your plant a name)</span>
+                      <span className="text-xs font-normal text-gray-500 dark:text-gray-400 ml-1">(Give your plant a name)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -388,14 +389,14 @@ const AddPlant = () => {
                         value={formData.nickname}
                         onChange={handleChange}
                         required
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:focus:border-green-400 transition-all dark:text-white dark:placeholder-gray-400"
                         placeholder="My Lovely Tomato"
                       />
                     </div>
                   </div>
 
                   <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Species <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -408,7 +409,7 @@ const AddPlant = () => {
                         value={formData.species}
                         onChange={handleChange}
                         required
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:focus:border-green-400 transition-all dark:text-white dark:placeholder-gray-400"
                         placeholder="Tomato"
                       />
                     </div>
@@ -417,7 +418,7 @@ const AddPlant = () => {
 
                 {/* Category Selection */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Category</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Category</label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {categories.map((cat) => (
                       <button
@@ -426,14 +427,14 @@ const AddPlant = () => {
                         onClick={() => setFormData({ ...formData, category: cat.value })}
                         className={`p-4 rounded-xl border-2 text-center transition-all duration-300 transform hover:-translate-y-1 ${
                           formData.category === cat.value
-                            ? 'border-green-500 bg-green-50 shadow-lg'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/30 shadow-lg'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
                       >
                         <div className={`w-10 h-10 mx-auto mb-2 rounded-xl bg-gradient-to-br ${cat.color} flex items-center justify-center text-xl shadow-md`}>
                           {cat.icon}
                         </div>
-                        <span className="font-medium text-sm text-gray-800">{cat.label}</span>
+                        <span className="font-medium text-sm text-gray-800 dark:text-gray-200">{cat.label}</span>
                       </button>
                     ))}
                   </div>
@@ -441,7 +442,7 @@ const AddPlant = () => {
 
                 {/* Location Selection */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Growing Location</label>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Growing Location</label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {locations.map((loc) => (
                       <button
@@ -450,13 +451,13 @@ const AddPlant = () => {
                         onClick={() => setFormData({ ...formData, location: loc.value })}
                         className={`p-4 rounded-xl border-2 text-center transition-all duration-300 transform hover:-translate-y-1 ${
                           formData.location === loc.value
-                            ? 'border-green-500 bg-green-50 shadow-lg'
-                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/30 shadow-lg'
+                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
                       >
                         <div className="text-3xl mb-2">{loc.icon}</div>
-                        <span className="font-medium text-sm text-gray-800 block">{loc.label}</span>
-                        <span className="text-xs text-gray-500">{loc.description}</span>
+                        <span className="font-medium text-sm text-gray-800 dark:text-gray-200 block">{loc.label}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{loc.description}</span>
                       </button>
                     ))}
                   </div>
@@ -465,7 +466,7 @@ const AddPlant = () => {
                 {/* Planted Date & Sunlight */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Planted Date
                     </label>
                     <div className="relative">
@@ -477,16 +478,16 @@ const AddPlant = () => {
                         name="plantedDate"
                         value={formData.plantedDate}
                         onChange={handleChange}
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all"
+                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:focus:border-green-400 transition-all dark:text-white"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Daily Sunlight Hours
                     </label>
-                    <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 border-2 border-gray-200 dark:border-gray-600">
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-2xl">🌙</span>
                         <div className={`px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg text-white font-bold shadow-md ${getSunlightLabel(formData.sunlightReceived).color}`}>
@@ -503,7 +504,7 @@ const AddPlant = () => {
                         max="12"
                         className="w-full h-2 bg-gradient-to-r from-gray-300 via-yellow-300 to-orange-400 rounded-lg appearance-none cursor-pointer"
                       />
-                      <div className="flex justify-between mt-2 text-xs text-gray-500">
+                      <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
                         <span>0h</span>
                         <span>6h</span>
                         <span>12h</span>
@@ -514,8 +515,8 @@ const AddPlant = () => {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Notes <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Notes <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Optional)</span>
                   </label>
                   <div className="relative">
                     <textarea
@@ -523,7 +524,7 @@ const AddPlant = () => {
                       value={formData.notes}
                       onChange={handleChange}
                       rows="4"
-                      className="w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all resize-none"
+                      className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:focus:border-green-400 transition-all resize-none dark:text-white dark:placeholder-gray-400"
                       placeholder="Any special notes about this plant... (e.g., bought from local nursery, gift from friend)"
                     />
                   </div>
@@ -534,7 +535,7 @@ const AddPlant = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/dashboard')}
-                    className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -567,15 +568,15 @@ const AddPlant = () => {
               </form>
             </div>
 
-            {/* Tips Card */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200">
+            {/* Tips Card - Dark mode */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 rounded-2xl p-6 border border-amber-200 dark:border-amber-700">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center text-white text-xl flex-shrink-0">
                   💡
                 </div>
                 <div>
-                  <h3 className="font-bold text-amber-800 mb-2">Pro Tips</h3>
-                  <ul className="text-sm text-amber-700 space-y-1">
+                  <h3 className="font-bold text-amber-800 dark:text-amber-300 mb-2">Pro Tips</h3>
+                  <ul className="text-sm text-amber-700 dark:text-amber-400 space-y-1">
                     <li>• Give your plant a memorable nickname to easily identify it</li>
                     <li>• Accurate sunlight hours help AI generate better care schedules</li>
                     <li>• Add notes about where you bought it or any special care it needs</li>
@@ -585,6 +586,7 @@ const AddPlant = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </Layout>
   );

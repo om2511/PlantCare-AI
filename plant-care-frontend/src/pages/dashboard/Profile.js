@@ -2,17 +2,24 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../utils/api';
+import api, { authAPI } from '../../utils/api';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [stats, setStats] = useState({ totalPlants: 0, healthyPlants: 0, needsAttention: 0 });
+
+  // Delete account states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   // Form data
   const [formData, setFormData] = useState({
@@ -177,60 +184,90 @@ const Profile = () => {
     });
   };
 
+  // Handle delete account
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      setDeleteError('Please type DELETE to confirm');
+      return;
+    }
+
+    if (!deletePassword) {
+      setDeleteError('Please enter your password');
+      return;
+    }
+
+    setDeleting(true);
+    setDeleteError('');
+
+    try {
+      const response = await authAPI.deleteAccount(deletePassword);
+
+      if (response.data.success) {
+        // Clear local storage and logout
+        logout();
+        navigate('/login');
+      }
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Error deleting account');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <button
               onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 mb-4 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span>Back</span>
             </button>
-            <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
-            <p className="text-gray-600 mt-1">Manage your account settings and preferences</p>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">My Profile</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">Manage your account settings and preferences</p>
           </div>
 
           {/* Success/Error Messages */}
           {success && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
+            <div className="mb-6 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
               <span className="text-green-500 text-xl">✓</span>
-              <p className="text-green-700">{success}</p>
+              <p className="text-green-700 dark:text-green-400">{success}</p>
             </div>
           )}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
+            <div className="mb-6 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
               <span className="text-red-500 text-xl">!</span>
-              <p className="text-red-700">{error}</p>
+              <p className="text-red-700 dark:text-red-400">{error}</p>
             </div>
           )}
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Profile Card */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden">
                 {/* Cover Image */}
                 <div className="h-24 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500"></div>
 
                 {/* Avatar & Info */}
                 <div className="px-6 pb-6">
                   <div className="flex justify-center -mt-12 mb-4">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-white">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-white dark:border-gray-800">
                       {getInitials(user?.name)}
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <h2 className="text-xl font-bold text-gray-800">{user?.name}</h2>
-                    <p className="text-gray-500 text-sm">{user?.email}</p>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">{user?.name}</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">{user?.email}</p>
 
                     {user?.location?.city && (
-                      <div className="flex items-center justify-center gap-1 mt-2 text-gray-600 text-sm">
+                      <div className="flex items-center justify-center gap-1 mt-2 text-gray-600 dark:text-gray-400 text-sm">
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -239,35 +276,35 @@ const Profile = () => {
                       </div>
                     )}
 
-                    <p className="text-xs text-gray-400 mt-3">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-3">
                       Member since {formatDate(user?.createdAt)}
                     </p>
                   </div>
                 </div>
 
                 {/* Stats */}
-                <div className="border-t border-gray-100 px-6 py-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 px-6 py-4">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <p className="text-2xl font-bold text-green-600">{stats.totalPlants}</p>
-                      <p className="text-xs text-gray-500">Plants</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Plants</p>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-emerald-600">{stats.healthyPlants}</p>
-                      <p className="text-xs text-gray-500">Healthy</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Healthy</p>
                     </div>
                     <div>
                       <p className="text-2xl font-bold text-amber-600">{stats.needsAttention}</p>
-                      <p className="text-xs text-gray-500">Attention</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Attention</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Quick Actions */}
-                <div className="border-t border-gray-100 p-4">
+                <div className="border-t border-gray-100 dark:border-gray-700 p-4">
                   <button
                     onClick={() => navigate('/dashboard')}
-                    className="w-full py-2.5 bg-green-50 text-green-700 rounded-lg font-medium hover:bg-green-100 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-2.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors flex items-center justify-center gap-2"
                   >
                     <span>🌿</span>
                     View My Plants
@@ -276,27 +313,27 @@ const Profile = () => {
               </div>
 
               {/* Growing Conditions Card */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
-                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mt-6">
+                <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
                   <span>🌱</span>
                   Growing Conditions
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-sm">Climate Zone</span>
-                    <span className="font-medium text-gray-800 capitalize">
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Climate Zone</span>
+                    <span className="font-medium text-gray-800 dark:text-white capitalize">
                       {climateZones.find(c => c.value === user?.location?.climateZone)?.label || 'Not set'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-sm">Growing Location</span>
-                    <span className="font-medium text-gray-800 capitalize">
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Growing Location</span>
+                    <span className="font-medium text-gray-800 dark:text-white capitalize">
                       {growingLocations.find(l => l.value === user?.balconyType)?.label || 'Not set'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600 text-sm">Sunlight Hours</span>
-                    <span className="font-medium text-gray-800">
+                    <span className="text-gray-600 dark:text-gray-400 text-sm">Sunlight Hours</span>
+                    <span className="font-medium text-gray-800 dark:text-white">
                       {user?.sunlightHours || 0} hours/day
                     </span>
                   </div>
@@ -306,15 +343,15 @@ const Profile = () => {
 
             {/* Edit Form */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white">
                     {isEditing ? 'Edit Profile' : 'Profile Details'}
                   </h3>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="px-4 py-2 bg-green-50 text-green-700 rounded-lg font-medium hover:bg-green-100 transition-colors flex items-center gap-2"
+                      className="px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors flex items-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -327,12 +364,12 @@ const Profile = () => {
                 <form onSubmit={handleSubmit}>
                   {/* Basic Info */}
                   <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
                       Basic Information
                     </h4>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Full Name
                         </label>
                         <input
@@ -343,13 +380,13 @@ const Profile = () => {
                           disabled={!isEditing}
                           className={`w-full px-4 py-3 rounded-xl border ${
                             isEditing
-                              ? 'border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:bg-gray-700 dark:text-white'
+                              : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-300'
                           } transition-all outline-none`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           Email Address
                         </label>
                         <input
@@ -357,21 +394,21 @@ const Profile = () => {
                           name="email"
                           value={formData.email}
                           disabled
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-500"
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
                         />
-                        <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Email cannot be changed</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Location */}
                   <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
                       Location
                     </h4>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           City
                         </label>
                         <input
@@ -383,13 +420,13 @@ const Profile = () => {
                           placeholder="e.g., Mumbai"
                           className={`w-full px-4 py-3 rounded-xl border ${
                             isEditing
-                              ? 'border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:bg-gray-700 dark:text-white'
+                              : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-300'
                           } transition-all outline-none`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                           State
                         </label>
                         <select
@@ -399,8 +436,8 @@ const Profile = () => {
                           disabled={!isEditing}
                           className={`w-full px-4 py-3 rounded-xl border ${
                             isEditing
-                              ? 'border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:bg-gray-700 dark:text-white'
+                              : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-300'
                           } transition-all outline-none`}
                         >
                           <option value="">Select State</option>
@@ -414,7 +451,7 @@ const Profile = () => {
 
                   {/* Climate Zone */}
                   <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
                       Climate Zone
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -426,14 +463,14 @@ const Profile = () => {
                           disabled={!isEditing}
                           className={`p-3 rounded-xl border-2 transition-all text-center ${
                             formData.climateZone === zone.value
-                              ? 'border-green-500 bg-green-50'
+                              ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
                               : isEditing
-                              ? 'border-gray-200 hover:border-green-300'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500'
+                              : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700'
                           }`}
                         >
                           <div className="text-2xl mb-1">{zone.icon}</div>
-                          <p className="text-sm font-medium text-gray-800">{zone.label}</p>
+                          <p className="text-sm font-medium text-gray-800 dark:text-white">{zone.label}</p>
                         </button>
                       ))}
                     </div>
@@ -441,7 +478,7 @@ const Profile = () => {
 
                   {/* Growing Location */}
                   <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
                       Growing Location
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -453,15 +490,15 @@ const Profile = () => {
                           disabled={!isEditing}
                           className={`p-4 rounded-xl border-2 transition-all text-center ${
                             formData.balconyType === location.value
-                              ? 'border-green-500 bg-green-50'
+                              ? 'border-green-500 bg-green-50 dark:bg-green-900/30'
                               : isEditing
-                              ? 'border-gray-200 hover:border-green-300'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500'
+                              : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700'
                           }`}
                         >
                           <div className="text-2xl mb-1">{location.icon}</div>
-                          <p className="text-sm font-medium text-gray-800">{location.label}</p>
-                          <p className="text-xs text-gray-500 mt-1">{location.description}</p>
+                          <p className="text-sm font-medium text-gray-800 dark:text-white">{location.label}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{location.description}</p>
                         </button>
                       ))}
                     </div>
@@ -469,13 +506,13 @@ const Profile = () => {
 
                   {/* Sunlight Hours */}
                   <div className="mb-8">
-                    <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
                       Daily Sunlight Hours
                     </h4>
-                    <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-gray-600">Available sunlight</span>
-                        <span className="font-bold text-green-600 text-lg">{formData.sunlightHours} hours</span>
+                        <span className="text-gray-600 dark:text-gray-400">Available sunlight</span>
+                        <span className="font-bold text-green-600 dark:text-green-400 text-lg">{formData.sunlightHours} hours</span>
                       </div>
                       <input
                         type="range"
@@ -486,7 +523,7 @@ const Profile = () => {
                         onChange={handleChange}
                         disabled={!isEditing}
                         className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
-                          isEditing ? 'bg-green-200' : 'bg-gray-300'
+                          isEditing ? 'bg-green-200' : 'bg-gray-300 dark:bg-gray-600'
                         }`}
                         style={{
                           background: isEditing
@@ -494,7 +531,7 @@ const Profile = () => {
                             : undefined
                         }}
                       />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <span>0h (Shade)</span>
                         <span>6h (Partial)</span>
                         <span>12h (Full Sun)</span>
@@ -505,12 +542,12 @@ const Profile = () => {
                   {/* Change Password */}
                   {isEditing && (
                     <div className="mb-8">
-                      <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                      <h4 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
                         Change Password (Optional)
                       </h4>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             New Password
                           </label>
                           <input
@@ -519,11 +556,11 @@ const Profile = () => {
                             value={formData.newPassword}
                             onChange={handleChange}
                             placeholder="Leave blank to keep current"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Confirm New Password
                           </label>
                           <input
@@ -532,7 +569,7 @@ const Profile = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             placeholder="Confirm new password"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                           />
                         </div>
                       </div>
@@ -563,7 +600,7 @@ const Profile = () => {
                             });
                           }
                         }}
-                        className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                        className="flex-1 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                       >
                         Cancel
                       </button>
@@ -592,19 +629,24 @@ const Profile = () => {
               </div>
 
               {/* Danger Zone */}
-              <div className="bg-white rounded-2xl shadow-lg p-6 mt-6 border-2 border-red-100">
-                <h3 className="text-lg font-bold text-red-600 mb-2 flex items-center gap-2">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mt-6 border-2 border-red-100 dark:border-red-900/50">
+                <h3 className="text-lg font-bold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                   Danger Zone
                 </h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  Once you delete your account, there is no going back. Please be certain.
+                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                  Once you delete your account, there is no going back. All your plants and care logs will be permanently deleted.
                 </p>
                 <button
-                  className="px-4 py-2 border-2 border-red-300 text-red-600 rounded-lg font-medium hover:bg-red-50 transition-colors"
-                  onClick={() => alert('Account deletion feature coming soon. Please contact support.')}
+                  className="px-4 py-2 border-2 border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                  onClick={() => {
+                    setShowDeleteModal(true);
+                    setDeletePassword('');
+                    setDeleteConfirmText('');
+                    setDeleteError('');
+                  }}
                 >
                   Delete Account
                 </button>
@@ -613,6 +655,122 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => !deleting && setShowDeleteModal(false)}
+          ></div>
+
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-fadeIn">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Delete Account</h3>
+                <p className="text-sm text-gray-500">This action cannot be undone</p>
+              </div>
+            </div>
+
+            {/* Warning */}
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+              <p className="text-red-700 text-sm">
+                <strong>Warning:</strong> This will permanently delete your account and all associated data including:
+              </p>
+              <ul className="text-red-600 text-sm mt-2 space-y-1">
+                <li className="flex items-center gap-2">
+                  <span>•</span>
+                  <span>All your plants ({stats.totalPlants} plants)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>•</span>
+                  <span>All care logs and history</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>•</span>
+                  <span>Your profile and preferences</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Error Message */}
+            {deleteError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <p className="text-red-700 text-sm">{deleteError}</p>
+              </div>
+            )}
+
+            {/* Confirmation Input */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Type <span className="font-bold text-red-600">DELETE</span> to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all outline-none"
+                  disabled={deleting}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Enter your password to confirm
+                </label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="Your password"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all outline-none"
+                  disabled={deleting}
+                />
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting || deleteConfirmText !== 'DELETE' || !deletePassword}
+                className="flex-1 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Delete Account</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         @keyframes fadeIn {

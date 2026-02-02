@@ -176,6 +176,7 @@ const DiseaseDetection = () => {
 
   return (
     <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-rose-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
@@ -183,23 +184,23 @@ const DiseaseDetection = () => {
             <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
             AI-Powered Diagnosis
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 dark:text-white mb-3">
             Plant Disease Detection
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Get instant AI diagnosis for your plant's health issues. Upload an image or describe the symptoms for accurate disease identification and treatment recommendations.
           </p>
         </div>
 
         {/* Detection Mode Toggle */}
         <div className="flex justify-center mb-6">
-          <div className="bg-gray-100 p-1.5 rounded-2xl inline-flex">
+          <div className="bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl inline-flex">
             <button
               onClick={() => { setDetectionMode('image'); resetForm(); }}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
                 detectionMode === 'image'
-                  ? 'bg-white text-purple-600 shadow-lg'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 shadow-lg'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
             >
               <span className="text-xl">📸</span>
@@ -209,8 +210,8 @@ const DiseaseDetection = () => {
               onClick={() => { setDetectionMode('text'); resetForm(); }}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
                 detectionMode === 'text'
-                  ? 'bg-white text-purple-600 shadow-lg'
-                  : 'text-gray-600 hover:text-gray-800'
+                  ? 'bg-white dark:bg-gray-700 text-purple-600 dark:text-purple-400 shadow-lg'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
               }`}
             >
               <span className="text-xl">✍️</span>
@@ -235,7 +236,7 @@ const DiseaseDetection = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Input Section */}
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
             {/* Header */}
             <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 p-6 text-white">
               <div className="flex items-center gap-3">
@@ -258,13 +259,13 @@ const DiseaseDetection = () => {
             <div className="p-6 space-y-5">
               {/* Plant Selection */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Select Plant <span className="text-xs font-normal text-gray-500">(Optional - to save diagnosis)</span>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Select Plant <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Optional - to save diagnosis)</span>
                 </label>
                 <select
                   value={plantId}
                   onChange={(e) => setPlantId(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 transition-all dark:text-white"
                 >
                   <option value="">Choose a plant from your garden</option>
                   {plants.map((plant) => (
@@ -278,7 +279,7 @@ const DiseaseDetection = () => {
               {/* Image Upload Mode */}
               {detectionMode === 'image' && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                     Plant Photo <span className="text-red-500">*</span>
                   </label>
                   <div
@@ -286,8 +287,8 @@ const DiseaseDetection = () => {
                     onDragOver={handleDragOver}
                     className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer ${
                       preview
-                        ? 'border-purple-400 bg-purple-50'
-                        : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                        ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/30'
+                        : 'border-gray-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                     }`}
                   >
                     <input
@@ -314,13 +315,13 @@ const DiseaseDetection = () => {
                         </div>
                       ) : (
                         <div className="py-8">
-                          <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <div className="w-20 h-20 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                             <span className="text-4xl">📷</span>
                           </div>
-                          <p className="text-gray-700 font-semibold mb-1">
+                          <p className="text-gray-700 dark:text-gray-300 font-semibold mb-1">
                             Drop your image here or click to browse
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             Supports: JPG, PNG, WEBP (Max 10MB)
                           </p>
                         </div>
@@ -334,8 +335,8 @@ const DiseaseDetection = () => {
               {detectionMode === 'text' && (
                 <>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Plant Name <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Plant Name <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Optional)</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -346,13 +347,13 @@ const DiseaseDetection = () => {
                         value={plantName}
                         onChange={(e) => setPlantName(e.target.value)}
                         placeholder="e.g., Tomato, Rose, Tulsi"
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all"
+                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 transition-all dark:text-white dark:placeholder-gray-400"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Describe Symptoms <span className="text-red-500">*</span>
                     </label>
                     <textarea
@@ -360,20 +361,20 @@ const DiseaseDetection = () => {
                       onChange={(e) => setSymptoms(e.target.value)}
                       rows="4"
                       placeholder="Describe what you see... e.g., Yellow spots on leaves, wilting stems, white powder on surface"
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all resize-none"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 transition-all resize-none dark:text-white dark:placeholder-gray-400"
                     />
                   </div>
 
                   {/* Quick Symptom Tags */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Quick Add Symptoms</label>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Quick Add Symptoms</label>
                     <div className="flex flex-wrap gap-2">
                       {commonSymptoms.map((symptom, index) => (
                         <button
                           key={index}
                           type="button"
                           onClick={() => setSymptoms(prev => prev ? `${prev}, ${symptom}` : symptom)}
-                          className="px-3 py-1.5 bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-purple-700 rounded-full text-sm font-medium transition-all"
+                          className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-700 dark:text-gray-300 hover:text-purple-700 dark:hover:text-purple-400 rounded-full text-sm font-medium transition-all"
                         >
                           + {symptom}
                         </button>
@@ -406,11 +407,11 @@ const DiseaseDetection = () => {
               </button>
 
               {/* Tips */}
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-4 border border-blue-200">
-                <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-2xl p-4 border border-blue-200 dark:border-blue-700">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
                   <span>💡</span> Tips for accurate results
                 </h4>
-                <ul className="text-sm text-blue-700 space-y-1">
+                <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
                   {detectionMode === 'image' ? (
                     <>
                       <li className="flex items-start gap-2">
@@ -448,7 +449,7 @@ const DiseaseDetection = () => {
           </div>
 
           {/* Results Section */}
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
             <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-6 text-white">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-2xl">
@@ -464,11 +465,11 @@ const DiseaseDetection = () => {
             <div className="p-6">
               {!result ? (
                 <div className="text-center py-16">
-                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
                     <span className="text-5xl">🔍</span>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">Ready to Analyze</h3>
-                  <p className="text-gray-500 max-w-sm mx-auto">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Ready to Analyze</h3>
+                  <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
                     {detectionMode === 'image'
                       ? 'Upload a photo of your plant and click analyze to get instant AI diagnosis'
                       : 'Describe your plant symptoms and our AI will identify potential issues'}
@@ -553,7 +554,7 @@ const DiseaseDetection = () => {
                   {/* Treatment Plan */}
                   {result.analysis.treatment && (
                     <div className="space-y-3">
-                      <h4 className="font-bold text-gray-800 flex items-center gap-2">
+                      <h4 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
                         <span className="text-xl">💊</span>
                         Treatment Plan
                       </h4>
@@ -637,10 +638,10 @@ const DiseaseDetection = () => {
                   )}
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
                       onClick={resetForm}
-                      className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -698,14 +699,15 @@ const DiseaseDetection = () => {
           </Link>
         </div>
       </div>
+      </div>
     </Layout>
   );
 };
 
 // Result Card Component
 const ResultCard = ({ icon, title, gradient, bgColor, borderColor, children }) => (
-  <div className={`p-4 rounded-xl border ${bgColor} ${borderColor}`}>
-    <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+  <div className={`p-4 rounded-xl border ${bgColor} dark:bg-gray-700/50 ${borderColor} dark:border-gray-600`}>
+    <h4 className="font-semibold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
       <div className={`w-8 h-8 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center text-sm shadow-md`}>
         {icon}
       </div>
@@ -718,9 +720,9 @@ const ResultCard = ({ icon, title, gradient, bgColor, borderColor, children }) =
 // Treatment Step Component
 const TreatmentStep = ({ icon, label, content, color }) => {
   const colors = {
-    red: 'bg-red-50 border-red-200 text-red-800',
-    blue: 'bg-blue-50 border-blue-200 text-blue-800',
-    green: 'bg-green-50 border-green-200 text-green-800',
+    red: 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700 text-red-800 dark:text-red-300',
+    blue: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300',
+    green: 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 text-green-800 dark:text-green-300',
   };
 
   return (
@@ -729,19 +731,19 @@ const TreatmentStep = ({ icon, label, content, color }) => {
         <span>{icon}</span>
         {label}
       </p>
-      <p className="text-sm text-gray-700">{content}</p>
+      <p className="text-sm text-gray-700 dark:text-gray-300">{content}</p>
     </div>
   );
 };
 
 // Info Card Component
 const InfoCard = ({ icon, title, description, gradient }) => (
-  <div className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:shadow-xl transition-all">
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all">
     <div className={`w-12 h-12 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center text-2xl shadow-lg mb-3`}>
       {icon}
     </div>
-    <h3 className="font-bold text-gray-800 mb-2">{title}</h3>
-    <p className="text-sm text-gray-600">{description}</p>
+    <h3 className="font-bold text-gray-800 dark:text-white mb-2">{title}</h3>
+    <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
   </div>
 );
 
