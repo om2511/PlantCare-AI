@@ -107,7 +107,8 @@ const AddPlant = () => {
       const response = await plantAPI.addPlant(formData);
 
       if (response.data.success) {
-        navigate('/dashboard');
+        // Navigate to dashboard with a refresh flag
+        navigate('/dashboard', { state: { refresh: true, newPlant: true } });
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to add plant');
@@ -470,7 +471,7 @@ const AddPlant = () => {
                       Planted Date
                     </label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
                         <span className="text-gray-400">📅</span>
                       </div>
                       <input
@@ -478,7 +479,9 @@ const AddPlant = () => {
                         name="plantedDate"
                         value={formData.plantedDate}
                         onChange={handleChange}
-                        className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:focus:border-green-400 transition-all dark:text-white"
+                        max="9999-12-31"
+                        className="w-full pl-12 pr-2 sm:pr-4 py-3.5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 dark:focus:border-green-400 transition-all dark:text-white text-sm sm:text-base"
+                        style={{ colorScheme: 'light' }}
                       />
                     </div>
                   </div>

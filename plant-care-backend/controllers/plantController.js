@@ -133,14 +133,20 @@ const addPlant = async (req, res) => {
 // @access  Private
 const getPlants = async (req, res) => {
   try {
-    const { category, status, isActive = true } = req.query;
+    const { category, status, isActive } = req.query;
 
     // Build query
     const query = { userId: req.user._id };
     
     if (category) query.category = category;
     if (status) query.status = status;
-    if (isActive !== undefined) query.isActive = isActive === 'true';
+    
+    // Only filter by isActive if explicitly provided, default to showing active plants
+    if (isActive !== undefined) {
+      query.isActive = isActive === 'true' || isActive === true;
+    } else {
+      query.isActive = true; // Default: show only active plants
+    }
 
     const plants = await Plant.find(query).sort({ createdAt: -1 });
 

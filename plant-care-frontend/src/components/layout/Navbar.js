@@ -62,8 +62,8 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2 flex-shrink-0">
-            <img src="/logo.png" alt="PlantCare AI" className="h-8 w-8 sm:h-10 sm:w-10" />
-            <span className="text-base sm:text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent whitespace-nowrap">
+            <img src="/logo.png" alt="PlantCare AI" className="h-10 w-10 sm:h-10 sm:w-10" />
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent whitespace-nowrap">
               PlantCare AI
             </span>
           </Link>
