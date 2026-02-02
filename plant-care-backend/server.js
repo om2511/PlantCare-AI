@@ -14,7 +14,14 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: (origin, callback) => {
+    const allowedOrigin = process.env.FRONTEND_URL?.replace(/\/$/, ''); // Remove trailing slash
+    if (!origin || !allowedOrigin || origin === allowedOrigin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 })); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
