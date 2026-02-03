@@ -5,7 +5,14 @@ import { useAuth } from '../context/AuthContext';
 const Home = () => {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState({});
+  const [isVisible, setIsVisible] = useState({
+    features: true,
+    'how-it-works': true,
+    stats: true,
+    plants: true,
+    testimonials: true,
+    faq: true,
+  });
 
   // Redirect to dashboard if user is already logged in
   useEffect(() => {
@@ -15,6 +22,7 @@ const Home = () => {
   }, [isAuthenticated, loading, navigate]);
 
   useEffect(() => {
+    // Observer for scroll-triggered animations (optional enhancement)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -26,32 +34,11 @@ const Home = () => {
       { threshold: 0.1 }
     );
 
-    // Use requestAnimationFrame to ensure DOM is fully painted before observing
-    // This fixes the issue where elements already in viewport don't trigger on initial load
-    const rafId = requestAnimationFrame(() => {
-      const elements = document.querySelectorAll('[data-animate]');
-
-      // Manually check and set visibility for elements already in viewport
-      const initialVisible = {};
-      elements.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
-        if (isInViewport && el.id) {
-          initialVisible[el.id] = true;
-        }
-        observer.observe(el);
-      });
-
-      // Set initial visibility state for elements already visible
-      if (Object.keys(initialVisible).length > 0) {
-        setIsVisible((prev) => ({ ...prev, ...initialVisible }));
-      }
+    document.querySelectorAll('[data-animate]').forEach((el) => {
+      observer.observe(el);
     });
 
-    return () => {
-      cancelAnimationFrame(rafId);
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
   // Show loading state while checking authentication
