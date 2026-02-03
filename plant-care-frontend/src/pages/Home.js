@@ -26,11 +26,32 @@ const Home = () => {
       { threshold: 0.1 }
     );
 
-    document.querySelectorAll('[data-animate]').forEach((el) => {
-      observer.observe(el);
+    // Use requestAnimationFrame to ensure DOM is fully painted before observing
+    // This fixes the issue where elements already in viewport don't trigger on initial load
+    const rafId = requestAnimationFrame(() => {
+      const elements = document.querySelectorAll('[data-animate]');
+
+      // Manually check and set visibility for elements already in viewport
+      const initialVisible = {};
+      elements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+        if (isInViewport && el.id) {
+          initialVisible[el.id] = true;
+        }
+        observer.observe(el);
+      });
+
+      // Set initial visibility state for elements already visible
+      if (Object.keys(initialVisible).length > 0) {
+        setIsVisible((prev) => ({ ...prev, ...initialVisible }));
+      }
     });
 
-    return () => observer.disconnect();
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
   }, []);
 
   // Show loading state while checking authentication
