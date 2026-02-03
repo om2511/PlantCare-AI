@@ -534,10 +534,10 @@ const Home = () => {
             <div>
               <h3 className="font-bold text-lg mb-4">Features</h3>
               <ul className="space-y-3 text-gray-400">
-                <li>AI Care Schedules</li>
-                <li>Disease Detection</li>
-                <li>Seasonal Tips</li>
-                <li>Water Quality</li>
+                <li><Link to="/care-reminders" className="hover:text-green-400 transition-colors">AI Care Schedules</Link></li>
+                <li><Link to="/disease-detection" className="hover:text-green-400 transition-colors">Disease Detection</Link></li>
+                <li><Link to="/suggestions" className="hover:text-green-400 transition-colors">Seasonal Tips</Link></li>
+                <li><Link to="/water-quality" className="hover:text-green-400 transition-colors">Water Quality</Link></li>
               </ul>
             </div>
           </div>
