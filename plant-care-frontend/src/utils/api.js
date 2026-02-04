@@ -106,4 +106,23 @@ export const waterQualityAPI = {
   getAdvice: (plantId, waterSource) => api.get(`/water-quality/${plantId}/${waterSource}`)
 };
 
+// Disease detection API calls
+export const diseaseAPI = {
+  // Analyze plant image for disease
+  analyzeImage: (formData) => {
+    return axios.post(`${API_URL}/disease/analyze`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  },
+
+  // Analyze disease by text description
+  analyzeText: (data) => api.post('/disease/analyze-text', data),
+
+  // Get plant images
+  getPlantImages: (plantId) => api.get(`/disease/plant/${plantId}/images`)
+};
+
 export default api;

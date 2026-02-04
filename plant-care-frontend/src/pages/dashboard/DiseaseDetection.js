@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import Layout from '../../components/layout/Layout';
-import { plantAPI } from '../../utils/api';
+import { plantAPI, diseaseAPI } from '../../utils/api';
 
 const DiseaseDetection = () => {
   const [detectionMode, setDetectionMode] = useState('image'); // 'image' or 'text'
@@ -76,18 +75,7 @@ const DiseaseDetection = () => {
         formData.append('plantId', plantId);
       }
 
-      const token = localStorage.getItem('token');
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/disease/analyze`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const response = await diseaseAPI.analyzeImage(formData);
 
       if (response.data.success) {
         setResult(response.data.data);
@@ -110,22 +98,11 @@ const DiseaseDetection = () => {
       setAnalyzing(true);
       setError('');
 
-      const token = localStorage.getItem('token');
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/disease/analyze-text`,
-        {
-          plantName: plantName || 'Unknown plant',
-          symptoms,
-          plantId: plantId || null
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const response = await diseaseAPI.analyzeText({
+        plantName: plantName || 'Unknown plant',
+        symptoms,
+        plantId: plantId || null
+      });
 
       if (response.data.success) {
         setResult(response.data.data);
