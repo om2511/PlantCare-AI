@@ -333,17 +333,17 @@ const Suggestions = () => {
                       key={index}
                       to="/add-plant"
                       state={{ searchQuery: plant.name }}
-                      className="group p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition-all"
+                      className="group p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition-all overflow-hidden"
                     >
-                      <h4 className="font-semibold text-gray-800 dark:text-white truncate group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                      <h4 className="font-semibold text-gray-800 dark:text-white truncate group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors text-sm">
                         {plant.name}
                       </h4>
                       {plant.scientificName && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 italic truncate">{plant.scientificName}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 italic truncate mt-0.5">{plant.scientificName}</p>
                       )}
-                      <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 truncate">
                         {plant.sunlight && (
-                          <span>☀️ {Array.isArray(plant.sunlight) ? plant.sunlight[0] : plant.sunlight}</span>
+                          <span className="truncate">☀️ {Array.isArray(plant.sunlight) ? plant.sunlight[0] : plant.sunlight}</span>
                         )}
                       </div>
                     </Link>

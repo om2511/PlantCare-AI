@@ -255,10 +255,10 @@ const getCurrentSeason = () => {
  */
 const generatePlantSuggestions = async (userConditions, availablePlants) => {
   try {
-    const prompt = `You are an expert in Indian gardening.
+    const prompt = `You are an expert in Indian gardening and horticulture with deep knowledge of plants that grow well in India.
 
 User Conditions:
-- Location: ${userConditions.city}, ${userConditions.state}
+- Location: ${userConditions.city}, ${userConditions.state}, India
 - Climate Zone: ${userConditions.climateZone}
 - Growing Location: ${userConditions.balconyType}
 - Available Sunlight: ${userConditions.sunlightHours} hours/day
@@ -267,12 +267,20 @@ User Conditions:
 Available Plants:
 ${availablePlants.slice(0, 20).map((p, i) => `${i + 1}. ${p.name} (${p.type})`).join('\n')}
 
-From the available plants list above, suggest the top 5 most suitable plants for these specific conditions in India.
+IMPORTANT: You MUST suggest plants that are commonly grown in India and suitable for Indian climate conditions.
+Prioritize traditional Indian plants like Tulsi (Holy Basil), Curry Leaf, Neem, Jasmine, Marigold, Hibiscus, Coriander, Mint, Money Plant, etc.
+
+From the available plants list above, suggest the top 5 most suitable plants for growing in ${userConditions.city}, India.
+Focus on plants that:
+1. Thrive in Indian climate (especially ${userConditions.climateZone} climate)
+2. Are commonly found in Indian homes and gardens
+3. Are suitable for ${userConditions.balconyType} growing
+4. Match the ${userConditions.sunlightHours} hours of available sunlight
 
 Return ONLY valid JSON (no markdown):
 {
   "suggestions": ["plant1", "plant2", "plant3", "plant4", "plant5"],
-  "reasoning": "<brief explanation why these plants suit the conditions>"
+  "reasoning": "<brief explanation why these Indian plants suit the conditions>"
 }`;
 
     const completion = await groq.chat.completions.create({
@@ -301,9 +309,11 @@ Return ONLY valid JSON (no markdown):
     return parsed;
   } catch (error) {
     console.error('❌ AI plant suggestions error:', error.message);
+    // Fallback with common Indian plants
+    const indianPlantsFallback = ['Tulsi', 'Money Plant', 'Aloe Vera', 'Jasmine', 'Marigold'];
     return {
-      suggestions: availablePlants.slice(0, 5).map(p => p.name),
-      reasoning: 'These plants are generally suitable for various conditions'
+      suggestions: indianPlantsFallback,
+      reasoning: 'These are popular Indian plants that grow well in most conditions across India'
     };
   }
 };

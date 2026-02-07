@@ -69,18 +69,24 @@ router.get('/suggestions/ai', protect, async (req, res) => {
       sunlightHours: req.user.sunlightHours || 6
     };
 
-    // Search for diverse plant categories to give AI variety
+    // Search for diverse Indian plant categories to give AI variety
     const searchTerms = [
-      'tomato',
-      'rose',
-      'basil',
-      'mint',
-      'jasmine',
-      'marigold',
-      'aloe',
-      'snake plant',
-      'tulsi',
-      'hibiscus'
+      'tulsi',        // Holy Basil - very common in India
+      'curry leaf',   // Essential Indian herb
+      'neem',         // Traditional Indian medicinal plant
+      'jasmine',      // Popular Indian flower
+      'marigold',     // Common in Indian gardens
+      'hibiscus',     // Tropical flower common in India
+      'coriander',    // Common Indian herb
+      'mint',         // Widely used in India
+      'chilli',       // Common Indian vegetable
+      'tomato',       // Popular vegetable
+      'brinjal',      // Eggplant - very common in India
+      'aloe vera',    // Popular succulent
+      'money plant',  // Very popular indoor plant in India
+      'snake plant',  // Popular indoor plant
+      'rose',         // Popular flower
+      'mango'         // National fruit of India
     ];
 
     console.log('🔍 Searching for diverse plants...');

@@ -499,7 +499,7 @@ const DiseaseDetection = () => {
                     >
                       <ul className="space-y-2">
                         {result.analysis.symptoms.map((symptom, index) => (
-                          <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                          <li key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
                             <span className="text-amber-500 mt-0.5">•</span>
                             <span>{symptom}</span>
                           </li>
@@ -519,7 +519,7 @@ const DiseaseDetection = () => {
                     >
                       <ul className="space-y-2">
                         {result.analysis.causes.map((cause, index) => (
-                          <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                          <li key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
                             <span className="text-orange-500 mt-0.5">•</span>
                             <span>{cause}</span>
                           </li>
@@ -560,11 +560,11 @@ const DiseaseDetection = () => {
                       {/* Treatment Options */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
                         {result.analysis.treatment.organicOptions && result.analysis.treatment.organicOptions.length > 0 && (
-                          <div className="p-4 bg-green-50 rounded-xl border border-green-200">
-                            <h5 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                          <div className="p-4 bg-green-50 dark:bg-green-900/30 rounded-xl border border-green-200 dark:border-green-700">
+                            <h5 className="font-semibold text-green-800 dark:text-green-300 mb-2 flex items-center gap-2">
                               <span>🌿</span> Organic Options
                             </h5>
-                            <ul className="text-sm text-gray-700 space-y-1">
+                            <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                               {result.analysis.treatment.organicOptions.map((option, index) => (
                                 <li key={index} className="flex items-start gap-2">
                                   <span className="text-green-500 mt-0.5">•</span>
@@ -576,11 +576,11 @@ const DiseaseDetection = () => {
                         )}
 
                         {result.analysis.treatment.chemicalOptions && result.analysis.treatment.chemicalOptions.length > 0 && (
-                          <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
-                            <h5 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                          <div className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-xl border border-purple-200 dark:border-purple-700">
+                            <h5 className="font-semibold text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-2">
                               <span>🧪</span> Chemical Options
                             </h5>
-                            <ul className="text-sm text-gray-700 space-y-1">
+                            <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                               {result.analysis.treatment.chemicalOptions.map((option, index) => (
                                 <li key={index} className="flex items-start gap-2">
                                   <span className="text-purple-500 mt-0.5">•</span>
@@ -605,7 +605,7 @@ const DiseaseDetection = () => {
                     >
                       <ul className="space-y-2">
                         {result.analysis.prevention.map((tip, index) => (
-                          <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
+                          <li key={index} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
                             <span className="text-indigo-500 mt-0.5">•</span>
                             <span>{tip}</span>
                           </li>
