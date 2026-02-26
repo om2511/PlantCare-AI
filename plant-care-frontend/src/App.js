@@ -14,6 +14,7 @@ import Profile from './pages/dashboard/Profile';
 import CareReminders from './pages/dashboard/CareReminders';
 import Analytics from './pages/dashboard/Analytics';
 import Settings from './pages/dashboard/Settings';
+import CompanionPlanting from './pages/dashboard/CompanionPlanting';
 import NotFound from './pages/NotFound';
 import Home from './pages/Home';
 
@@ -133,6 +134,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/companion-planting"
+              element={
+                <ProtectedRoute>
+                  <CompanionPlanting />
                 </ProtectedRoute>
               }
             />

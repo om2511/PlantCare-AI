@@ -1,7 +1,7 @@
 const Plant = require('../models/Plant');
 const CareLog = require('../models/CareLog');
 const { getPlantDetails } = require('../services/plantDataService');
-const { generateCareSchedule, generateSeasonalTips } = require('../services/aiServiceGroq');
+const { generateCareSchedule, generateSeasonalTips, generateSoilSuggestion, generateCompanionPlantingSuggestions, getCurrentSeason } = require('../services/aiServiceGroq');
 
 // @desc    Add new plant with AI-generated care schedule
 // @route   POST /api/plants
@@ -386,6 +386,97 @@ const getSeasonalTips = async (req, res) => {
   }
 };
 
+// @desc    Get AI soil guide for a plant
+// @route   GET /api/plants/:id/soil-guide
+// @access  Private
+const getSoilSuggestion = async (req, res) => {
+  try {
+    const plant = await Plant.findById(req.params.id);
+
+    if (!plant) {
+      return res.status(404).json({ success: false, message: 'Plant not found' });
+    }
+
+    if (plant.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized' });
+    }
+
+    const plantContext = {
+      species: plant.species,
+      scientificName: plant.scientificName,
+      category: plant.category,
+      location: plant.location,
+      soilType: plant.plantInfo?.soilType,
+      sunlight: plant.sunlightReceived ? `${plant.sunlightReceived} hours/day` : undefined,
+      wateringNeeds: plant.plantInfo?.wateringNeeds,
+      city: req.user.location?.city,
+      climateZone: req.user.location?.climateZone
+    };
+
+    const soilGuide = await generateSoilSuggestion(plantContext);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        plant: plant.species,
+        season: getCurrentSeason(),
+        soilGuide
+      }
+    });
+  } catch (error) {
+    console.error('Get soil suggestion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating soil guide',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Get companion planting suggestions for all user plants
+// @route   GET /api/plants/companion-suggestions
+// @access  Private
+const getCompanionSuggestions = async (req, res) => {
+  try {
+    const plants = await Plant.find({ userId: req.user._id, isActive: true });
+
+    if (plants.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          message: 'Add plants to your garden to get companion planting suggestions',
+          suggestions: null
+        }
+      });
+    }
+
+    const userConditions = {
+      city: req.user.location?.city || 'Mumbai',
+      state: req.user.location?.state || 'Maharashtra',
+      climateZone: req.user.location?.climateZone || 'tropical',
+      balconyType: req.user.balconyType || 'balcony'
+    };
+
+    const suggestions = await generateCompanionPlantingSuggestions(plants, userConditions);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        plantCount: plants.length,
+        plants: plants.map(p => ({ id: p._id, species: p.species, category: p.category, location: p.location })),
+        suggestions
+      }
+    });
+  } catch (error) {
+    console.error('Get companion suggestions error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating companion planting suggestions',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   addPlant,
   getPlants,
@@ -393,5 +484,7 @@ module.exports = {
   updatePlant,
   deletePlant,
   getPlantsNeedingCare,
-  getSeasonalTips
+  getSeasonalTips,
+  getSoilSuggestion,
+  getCompanionSuggestions
 };

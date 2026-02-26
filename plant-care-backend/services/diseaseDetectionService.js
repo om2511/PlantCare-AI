@@ -1,14 +1,42 @@
 const Groq = require('groq-sdk');
 
 /**
+ * Build plant context string for AI prompts
+ */
+const buildPlantContextPrompt = (plantContext) => {
+  if (!plantContext) return '';
+
+  const parts = [];
+  if (plantContext.species) parts.push(`Species: ${plantContext.species}`);
+  if (plantContext.scientificName) parts.push(`Scientific Name: ${plantContext.scientificName}`);
+  if (plantContext.category) parts.push(`Category: ${plantContext.category}`);
+  if (plantContext.location) parts.push(`Growing Location: ${plantContext.location}`);
+  if (plantContext.soilType) parts.push(`Soil Type: ${plantContext.soilType}`);
+  if (plantContext.sunlight) parts.push(`Sunlight: ${plantContext.sunlight}`);
+  if (plantContext.wateringNeeds) parts.push(`Watering Needs: ${plantContext.wateringNeeds}`);
+  if (plantContext.city) parts.push(`User Location: ${plantContext.city}, India`);
+  if (plantContext.climateZone) parts.push(`Climate Zone: ${plantContext.climateZone}`);
+  if (plantContext.season) parts.push(`Current Season: ${plantContext.season}`);
+
+  if (parts.length === 0) return '';
+
+  return `\n\nKNOWN PLANT INFORMATION (use this to improve diagnosis accuracy):
+${parts.join('\n')}
+
+IMPORTANT: Your diagnosis MUST be specific to this plant species. Do NOT suggest diseases that don't commonly affect this plant. Consider the growing conditions, climate, and season when diagnosing.`;
+};
+
+/**
  * Analyze plant image using Groq AI
  * Provides plant disease analysis with treatment recommendations
  */
-const analyzePlantImage = async (imageUrl) => {
+const analyzePlantImage = async (imageUrl, plantContext = null) => {
   try {
     console.log('🔍 Analyzing plant image...');
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+    const contextPrompt = buildPlantContextPrompt(plantContext);
 
     console.log('🤖 Sending to AI for analysis...');
 
@@ -16,16 +44,17 @@ const analyzePlantImage = async (imageUrl) => {
       messages: [
         {
           role: 'system',
-          content: `You are an expert plant pathologist. Provide plant disease analysis in JSON format.
+          content: `You are an expert plant pathologist specializing in Indian plants and climate conditions. Provide plant disease analysis in JSON format.
 
 IMPORTANT: Always respond with ONLY valid JSON, no markdown code blocks, no extra text.
+${plantContext ? `You are analyzing a KNOWN plant: ${plantContext.species || 'Unknown'}. Your diagnosis must be relevant to this specific species. Do not identify diseases that don't affect this plant species.` : 'Identify the plant type and then diagnose.'}
 
 Response format:
 {
   "isHealthy": boolean,
   "confidence": number (0-100),
   "disease": "string",
-  "plantType": "string",
+  "plantType": "string (detected plant type from image)",
   "severity": "mild" | "moderate" | "severe" | null,
   "symptoms": ["string"],
   "causes": ["string"],
@@ -36,14 +65,18 @@ Response format:
     "organicOptions": ["string"],
     "chemicalOptions": ["string"]
   },
-  "prevention": ["string"]
+  "prevention": ["string"],
+  "plantMismatch": boolean (true if the plant in the image appears different from the registered species),
+  "mismatchNote": "string (explain if plant type doesn't match, otherwise empty)",
+  "confidenceNote": "string (if confidence is below 40%, explain why diagnosis is uncertain)"
 }`
         },
         {
           role: 'user',
           content: `Analyze this plant image for potential diseases: ${imageUrl}
+${contextPrompt}
 
-Provide a detailed plant health analysis. If the image appears to be of a healthy plant, indicate that. If there are signs of disease, identify the most likely conditions and provide treatment recommendations.
+Provide a detailed plant health analysis. If the image appears to be of a healthy plant, indicate that. If there are signs of disease, identify the most likely conditions and provide treatment recommendations suitable for Indian gardeners.
 
 Respond with JSON only.`
         }
@@ -77,7 +110,7 @@ Respond with JSON only.`
       isHealthy: analysis.isHealthy ?? false,
       confidence: analysis.confidence ?? 70,
       disease: analysis.disease || 'Unknown condition',
-      plantType: analysis.plantType || 'Unknown plant',
+      plantType: analysis.plantType || (plantContext?.species) || 'Unknown plant',
       severity: analysis.isHealthy ? null : (analysis.severity || 'moderate'),
       symptoms: analysis.symptoms || ['Visual inspection recommended'],
       causes: analysis.causes || ['Multiple factors possible'],
@@ -92,7 +125,11 @@ Respond with JSON only.`
         'Regular monitoring',
         'Proper watering',
         'Good air circulation'
-      ]
+      ],
+      plantMismatch: analysis.plantMismatch || false,
+      mismatchNote: analysis.mismatchNote || '',
+      lowConfidence: (analysis.confidence ?? 70) < 40,
+      confidenceNote: analysis.confidenceNote || ''
     };
 
     console.log('✅ Disease analysis complete');
@@ -133,17 +170,20 @@ Respond with JSON only.`
 /**
  * Analyze plant symptoms from text description using Groq AI
  */
-const analyzeTextSymptoms = async (plantName, symptoms) => {
+const analyzeTextSymptoms = async (plantName, symptoms, plantContext = null) => {
   try {
     console.log('📝 Analyzing symptoms from text...');
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+    const contextPrompt = buildPlantContextPrompt(plantContext);
 
     const completion = await groq.chat.completions.create({
       messages: [
         {
           role: 'system',
           content: `You are an expert plant pathologist specializing in Indian plants and climate conditions. Analyze plant symptoms and provide disease diagnosis with treatment recommendations.
+${plantContext ? `You are diagnosing a KNOWN plant: ${plantContext.species || plantName}. Your diagnosis must be specific to this species and its known vulnerabilities.` : ''}
 
 IMPORTANT: Always respond with ONLY valid JSON, no markdown code blocks, no extra text.
 
@@ -163,7 +203,8 @@ Response format:
     "organicOptions": ["string - natural remedies"],
     "chemicalOptions": ["string - chemical treatments if needed"]
   },
-  "prevention": ["string - tips to prevent recurrence"]
+  "prevention": ["string - tips to prevent recurrence"],
+  "confidenceNote": "string (if confidence is below 40%, explain why diagnosis is uncertain)"
 }`
         },
         {
@@ -172,6 +213,7 @@ Response format:
 
 Plant Name: ${plantName || 'Unknown plant'}
 Symptoms Described: ${symptoms}
+${contextPrompt}
 
 Based on these symptoms, identify the most likely disease or condition and provide detailed treatment recommendations suitable for Indian gardeners. Consider common diseases in Indian climate.
 
@@ -222,7 +264,9 @@ Respond with JSON only.`
         'Regular monitoring',
         'Proper watering',
         'Good air circulation'
-      ]
+      ],
+      lowConfidence: (analysis.confidence ?? 70) < 40,
+      confidenceNote: analysis.confidenceNote || ''
     };
 
     console.log('✅ Text-based disease analysis complete');

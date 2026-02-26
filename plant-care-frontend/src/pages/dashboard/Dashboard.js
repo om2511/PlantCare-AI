@@ -272,6 +272,12 @@ const Dashboard = () => {
                   gradient="from-indigo-500 to-purple-500"
                 />
                 <QuickActionCard
+                  to="/companion-planting"
+                  icon="🌿"
+                  title="Companion Planting"
+                  gradient="from-teal-500 to-cyan-500"
+                />
+                <QuickActionCard
                   to="/add-plant"
                   icon="➕"
                   title="Add Plant"

@@ -237,11 +237,20 @@ const DiseaseDetection = () => {
               {/* Plant Selection */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Select Plant <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Optional - to save diagnosis)</span>
+                  Select Plant <span className="text-xs font-normal text-gray-500 dark:text-gray-400">(Improves diagnosis accuracy)</span>
                 </label>
                 <select
                   value={plantId}
-                  onChange={(e) => setPlantId(e.target.value)}
+                  onChange={(e) => {
+                    setPlantId(e.target.value);
+                    // Auto-populate plant name in text mode
+                    if (e.target.value && detectionMode === 'text') {
+                      const selectedPlant = plants.find(p => p._id === e.target.value);
+                      if (selectedPlant) {
+                        setPlantName(selectedPlant.species);
+                      }
+                    }
+                  }}
                   className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 transition-all dark:text-white"
                 >
                   <option value="">Choose a plant from your garden</option>
@@ -251,6 +260,11 @@ const DiseaseDetection = () => {
                     </option>
                   ))}
                 </select>
+                {plantId && (
+                  <p className="mt-1.5 text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <span>✓</span> Plant context will improve AI diagnosis accuracy
+                  </p>
+                )}
               </div>
 
               {/* Image Upload Mode */}
@@ -487,6 +501,36 @@ const DiseaseDetection = () => {
                       </div>
                     );
                   })()}
+
+                  {/* Low Confidence Warning */}
+                  {result.analysis.lowConfidence && (
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/30 rounded-xl border border-yellow-300 dark:border-yellow-700 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-sm">⚠️</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">Low Confidence Diagnosis</p>
+                        <p className="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                          {result.analysis.confidenceNote || 'The AI is not highly confident in this diagnosis. Consider uploading a clearer image or providing more details.'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Plant Mismatch Warning */}
+                  {result.analysis.plantMismatch && (
+                    <div className="p-4 bg-orange-50 dark:bg-orange-900/30 rounded-xl border border-orange-300 dark:border-orange-700 flex items-start gap-3">
+                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-sm">🔄</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-orange-800 dark:text-orange-300">Plant Type Mismatch</p>
+                        <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">
+                          {result.analysis.mismatchNote || 'The plant in the image may differ from your registered plant. Verify you selected the correct plant.'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Symptoms */}
                   {result.analysis.symptoms && result.analysis.symptoms.length > 0 && (

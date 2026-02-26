@@ -24,6 +24,10 @@ const PlantDetails = () => {
   const [waterAdvice, setWaterAdvice] = useState(null);
   const [loadingWaterAdvice, setLoadingWaterAdvice] = useState(false);
 
+  const [showSoilModal, setShowSoilModal] = useState(false);
+  const [soilGuide, setSoilGuide] = useState(null);
+  const [loadingSoilGuide, setLoadingSoilGuide] = useState(false);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchPlantData = useCallback(async () => {
@@ -98,6 +102,20 @@ const PlantDetails = () => {
     } catch (err) {
       setError('Failed to get water quality advice');
       setLoadingWaterAdvice(false);
+    }
+  };
+
+  const handleGetSoilGuide = async () => {
+    try {
+      setLoadingSoilGuide(true);
+      const response = await plantAPI.getSoilGuide(id);
+      if (response.data.success) {
+        setSoilGuide(response.data.data.soilGuide);
+      }
+      setLoadingSoilGuide(false);
+    } catch (err) {
+      setError('Failed to get soil guide');
+      setLoadingSoilGuide(false);
     }
   };
 
@@ -351,6 +369,14 @@ const PlantDetails = () => {
               <span className="hidden sm:inline">Scan for Disease</span>
               <span className="sm:hidden">Scan</span>
             </Link>
+            <button
+              onClick={() => { setSoilGuide(null); setShowSoilModal(true); }}
+              className="flex-1 min-w-[120px] sm:min-w-[140px] bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 sm:px-4 py-3 rounded-xl text-sm sm:text-base font-semibold hover:from-amber-600 hover:to-orange-600 transition-all flex items-center justify-center gap-2 shadow-lg"
+            >
+              <span>🌍</span>
+              <span className="hidden sm:inline">Soil Guide</span>
+              <span className="sm:hidden">Soil</span>
+            </button>
           </div>
         </div>
 
@@ -774,11 +800,212 @@ const PlantDetails = () => {
                   </h4>
                   <p className="text-xs sm:text-sm text-amber-700 dark:text-amber-400 break-words">{waterAdvice.preparation}</p>
                 </div>
+                {waterAdvice.phCompatibility && (
+                  <div className="p-3 sm:p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg sm:rounded-xl border border-purple-200 dark:border-purple-700">
+                    <h4 className="font-bold text-purple-800 dark:text-purple-300 mb-1 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                      <span>🧪</span> <span>pH Compatibility</span>
+                    </h4>
+                    <p className="text-xs sm:text-sm text-purple-700 dark:text-purple-400 break-words">{waterAdvice.phCompatibility}</p>
+                  </div>
+                )}
+                {waterAdvice.mineralAnalysis && (
+                  <div className="p-3 sm:p-4 bg-cyan-50 dark:bg-cyan-900/30 rounded-lg sm:rounded-xl border border-cyan-200 dark:border-cyan-700">
+                    <h4 className="font-bold text-cyan-800 dark:text-cyan-300 mb-1 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                      <span>💎</span> <span>Mineral Analysis</span>
+                    </h4>
+                    <p className="text-xs sm:text-sm text-cyan-700 dark:text-cyan-400 break-words">{waterAdvice.mineralAnalysis}</p>
+                  </div>
+                )}
+                {waterAdvice.alternativeWaterTip && (
+                  <div className="p-3 sm:p-4 bg-teal-50 dark:bg-teal-900/30 rounded-lg sm:rounded-xl border border-teal-200 dark:border-teal-700">
+                    <h4 className="font-bold text-teal-800 dark:text-teal-300 mb-1 flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base">
+                      <span>🔄</span> <span>Alternative Water Tip</span>
+                    </h4>
+                    <p className="text-xs sm:text-sm text-teal-700 dark:text-teal-400 break-words">{waterAdvice.alternativeWaterTip}</p>
+                  </div>
+                )}
               </div>
             )}
 
             <button
               onClick={() => { setShowWaterModal(false); setWaterAdvice(null); }}
+              className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Soil Guide Modal */}
+      {showSoilModal && (
+        <Modal onClose={() => { setShowSoilModal(false); setSoilGuide(null); }}>
+          <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0">
+              <span className="text-xl sm:text-2xl">🌍</span>
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white truncate">Soil Guide</h2>
+              <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 truncate">AI-powered soil mix recipe for {plant.species}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {!soilGuide ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">🌱</span>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Get a personalized soil mix recipe based on your plant's needs and local Indian conditions.</p>
+                <button
+                  onClick={handleGetSoilGuide}
+                  disabled={loadingSoilGuide}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 rounded-xl font-bold hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {loadingSoilGuide ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Generating Soil Guide...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>🤖</span>
+                      <span>Generate Soil Guide</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4 animate-fade-in">
+                {/* Ideal Soil Type */}
+                <div className="p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/30 rounded-xl border border-amber-200 dark:border-amber-700">
+                  <h4 className="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                    <span>🏆</span> Ideal Soil Type
+                  </h4>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 font-semibold">{soilGuide.idealSoilType}</p>
+                </div>
+
+                {/* Soil Mix Recipe */}
+                {soilGuide.soilMixRecipe && soilGuide.soilMixRecipe.length > 0 && (
+                  <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/30 rounded-xl border border-green-200 dark:border-green-700">
+                    <h4 className="font-bold text-green-800 dark:text-green-300 mb-3 flex items-center gap-2 text-sm sm:text-base">
+                      <span>🧪</span> Soil Mix Recipe
+                    </h4>
+                    <div className="space-y-2">
+                      {soilGuide.soilMixRecipe.map((item, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between items-center text-xs mb-1">
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">{item.component}</span>
+                            <span className="text-green-700 dark:text-green-400 font-bold">{item.ratio}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
+                              style={{ width: `${item.ratio}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.purpose}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* pH Range */}
+                {soilGuide.phRange && (
+                  <div className="p-3 sm:p-4 bg-purple-50 dark:bg-purple-900/30 rounded-xl border border-purple-200 dark:border-purple-700">
+                    <h4 className="font-bold text-purple-800 dark:text-purple-300 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                      <span>⚗️</span> pH Range
+                    </h4>
+                    <div className="flex items-center gap-3 text-sm">
+                      <span className="text-purple-700 dark:text-purple-400">Min: <strong>{soilGuide.phRange.min}</strong></span>
+                      <span className="text-purple-700 dark:text-purple-400">Ideal: <strong className="text-purple-900 dark:text-purple-200">{soilGuide.phRange.ideal}</strong></span>
+                      <span className="text-purple-700 dark:text-purple-400">Max: <strong>{soilGuide.phRange.max}</strong></span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Drainage & Organic Matter */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {soilGuide.drainageNeeds && (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-xl border border-blue-200 dark:border-blue-700">
+                      <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-1 flex items-center gap-1.5 text-xs sm:text-sm">
+                        <span>💧</span> Drainage
+                      </h4>
+                      <p className="text-xs text-blue-700 dark:text-blue-400">{soilGuide.drainageNeeds}</p>
+                    </div>
+                  )}
+                  {soilGuide.organicMatter && (
+                    <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl border border-emerald-200 dark:border-emerald-700">
+                      <h4 className="font-bold text-emerald-800 dark:text-emerald-300 mb-1 flex items-center gap-1.5 text-xs sm:text-sm">
+                        <span>🍃</span> Organic Matter
+                      </h4>
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400">{soilGuide.organicMatter}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Fertilizer */}
+                {soilGuide.fertilizerRecommendation && (
+                  <div className="p-3 sm:p-4 bg-yellow-50 dark:bg-yellow-900/30 rounded-xl border border-yellow-200 dark:border-yellow-700">
+                    <h4 className="font-bold text-yellow-800 dark:text-yellow-300 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                      <span>🌿</span> Fertilizer Recommendation
+                    </h4>
+                    <p className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-400">{soilGuide.fertilizerRecommendation}</p>
+                  </div>
+                )}
+
+                {/* Common Problems */}
+                {soilGuide.commonProblems && soilGuide.commonProblems.length > 0 && (
+                  <div className="p-3 sm:p-4 bg-red-50 dark:bg-red-900/30 rounded-xl border border-red-200 dark:border-red-700">
+                    <h4 className="font-bold text-red-800 dark:text-red-300 mb-2 flex items-center gap-2 text-sm sm:text-base">
+                      <span>⚠️</span> Common Soil Problems
+                    </h4>
+                    <div className="space-y-2">
+                      {soilGuide.commonProblems.map((item, i) => (
+                        <div key={i} className="text-xs">
+                          <span className="font-semibold text-red-700 dark:text-red-400">{item.problem}: </span>
+                          <span className="text-gray-600 dark:text-gray-300">{item.solution}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Local Availability */}
+                {soilGuide.localAvailability && (
+                  <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                    <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                      <span>🛒</span> Where to Buy in India
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{soilGuide.localAvailability}</p>
+                  </div>
+                )}
+
+                {/* Seasonal Adjustment */}
+                {soilGuide.seasonalAdjustment && (
+                  <div className="p-3 sm:p-4 bg-teal-50 dark:bg-teal-900/30 rounded-xl border border-teal-200 dark:border-teal-700">
+                    <h4 className="font-bold text-teal-800 dark:text-teal-300 mb-1 flex items-center gap-2 text-sm sm:text-base">
+                      <span>🌦️</span> Seasonal Adjustment
+                    </h4>
+                    <p className="text-xs sm:text-sm text-teal-700 dark:text-teal-400">{soilGuide.seasonalAdjustment}</p>
+                  </div>
+                )}
+
+                <button
+                  onClick={handleGetSoilGuide}
+                  className="w-full py-2.5 border-2 border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 rounded-xl text-sm font-semibold hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🔄</span> Regenerate
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={() => { setShowSoilModal(false); setSoilGuide(null); }}
               className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
             >
               Close

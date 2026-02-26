@@ -68,7 +68,13 @@ export const plantAPI = {
   getPlantsNeedingCare: () => api.get('/plants/care/today'),
   
   // Get seasonal tips for a plant
-  getSeasonalTips: (id) => api.get(`/plants/${id}/seasonal-tips`)
+  getSeasonalTips: (id) => api.get(`/plants/${id}/seasonal-tips`),
+
+  // Get soil guide for a plant
+  getSoilGuide: (id) => api.get(`/plants/${id}/soil-guide`),
+
+  // Get companion planting suggestions for all user plants
+  getCompanionSuggestions: () => api.get('/plants/companion-suggestions')
 };
 
 // Plant database API calls

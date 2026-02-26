@@ -7,7 +7,9 @@ const {
   updatePlant,
   deletePlant,
   getPlantsNeedingCare,
-  getSeasonalTips
+  getSeasonalTips,
+  getSoilSuggestion,
+  getCompanionSuggestions
 } = require('../controllers/plantController');
 const { protect } = require('../middleware/auth');
 
@@ -20,6 +22,7 @@ router.route('/')
   .post(addPlant);
 
 router.get('/care/today', getPlantsNeedingCare);
+router.get('/companion-suggestions', getCompanionSuggestions);
 
 router.route('/:id')
   .get(getPlant)
@@ -27,5 +30,6 @@ router.route('/:id')
   .delete(deletePlant);
 
 router.get('/:id/seasonal-tips', getSeasonalTips);
+router.get('/:id/soil-guide', getSoilSuggestion);
 
 module.exports = router;

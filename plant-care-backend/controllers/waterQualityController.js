@@ -34,8 +34,19 @@ const getWaterQualityAdvice = async (req, res) => {
       });
     }
 
-    // Get AI-generated water quality advice
-    const advice = await generateWaterQualityAdvice(plant.species, waterSource);
+    // Build plantContext for enhanced AI analysis
+    const plantContext = {
+      species: plant.species,
+      soilType: plant.plantInfo?.soilType,
+      wateringNeeds: plant.plantInfo?.wateringNeeds,
+      sunlight: plant.sunlightReceived ? `${plant.sunlightReceived} hours/day` : undefined,
+      location: plant.location,
+      city: req.user.location?.city,
+      climateZone: req.user.location?.climateZone
+    };
+
+    // Get AI-generated water quality advice with full context
+    const advice = await generateWaterQualityAdvice(plant.species, waterSource, plantContext);
 
     res.status(200).json({
       success: true,

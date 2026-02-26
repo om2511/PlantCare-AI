@@ -1,5 +1,28 @@
 const Plant = require('../models/Plant');
 const { analyzePlantImage, analyzeTextSymptoms } = require('../services/diseaseDetectionService');
+const { getCurrentSeason } = require('../services/aiServiceGroq');
+
+/**
+ * Build plantContext object from plant and user data
+ */
+const buildPlantContext = (plant, user) => {
+  const context = {};
+  if (plant) {
+    context.species = plant.species;
+    context.scientificName = plant.scientificName;
+    context.category = plant.category;
+    context.location = plant.location;
+    context.soilType = plant.plantInfo?.soilType;
+    context.sunlight = plant.sunlightReceived ? `${plant.sunlightReceived} hours/day` : undefined;
+    context.wateringNeeds = plant.plantInfo?.wateringNeeds;
+  }
+  if (user) {
+    context.city = user.location?.city;
+    context.climateZone = user.location?.climateZone;
+  }
+  context.season = getCurrentSeason();
+  return context;
+};
 
 // @desc    Upload and analyze plant image for disease
 // @route   POST /api/disease/analyze
@@ -20,8 +43,19 @@ const analyzeDisease = async (req, res) => {
 
     console.log('📸 Image uploaded:', imageUrl);
 
-    // Analyze image with AI
-    const analysis = await analyzePlantImage(imageUrl);
+    // Fetch plant BEFORE AI call to provide context
+    let plant = null;
+    let plantContext = null;
+
+    if (plantId) {
+      plant = await Plant.findById(plantId);
+      if (plant && plant.userId.toString() === req.user._id.toString()) {
+        plantContext = buildPlantContext(plant, req.user);
+      }
+    }
+
+    // Analyze image with AI (now with plant context)
+    const analysis = await analyzePlantImage(imageUrl, plantContext);
 
     if (!analysis.success) {
       // Handle specific error types with appropriate status codes
@@ -42,30 +76,26 @@ const analyzeDisease = async (req, res) => {
       });
     }
 
-    // If plantId provided, update plant status
-    if (plantId) {
-      const plant = await Plant.findById(plantId);
-
-      if (plant && plant.userId.toString() === req.user._id.toString()) {
-        // Update plant status based on analysis
-        if (!analysis.data.isHealthy) {
-          plant.status = analysis.data.severity === 'severe' ? 'diseased' : 'needs-attention';
-          plant.healthScore = Math.max(20, 100 - (analysis.data.confidence || 50));
-        } else {
-          plant.status = 'healthy';
-          plant.healthScore = Math.min(100, analysis.data.confidence || 90);
-        }
-
-        // Add image to plant
-        plant.images.push({
-          url: imageUrl,
-          publicId: req.file.filename,
-          uploadedAt: Date.now(),
-          note: `Disease check: ${analysis.data.disease}`
-        });
-
-        await plant.save();
+    // If plant found, update plant status
+    if (plant && plant.userId.toString() === req.user._id.toString()) {
+      // Update plant status based on analysis
+      if (!analysis.data.isHealthy) {
+        plant.status = analysis.data.severity === 'severe' ? 'diseased' : 'needs-attention';
+        plant.healthScore = Math.max(20, 100 - (analysis.data.confidence || 50));
+      } else {
+        plant.status = 'healthy';
+        plant.healthScore = Math.min(100, analysis.data.confidence || 90);
       }
+
+      // Add image to plant
+      plant.images.push({
+        url: imageUrl,
+        publicId: req.file.filename,
+        uploadedAt: Date.now(),
+        note: `Disease check: ${analysis.data.disease}`
+      });
+
+      await plant.save();
     }
 
     res.status(200).json({
@@ -102,8 +132,24 @@ const analyzeDiseaseByText = async (req, res) => {
 
     console.log('📝 Analyzing symptoms by text...');
 
-    // Analyze symptoms with AI
-    const analysis = await analyzeTextSymptoms(plantName, symptoms);
+    // Fetch plant BEFORE AI call to provide context
+    let plant = null;
+    let plantContext = null;
+    let effectivePlantName = plantName;
+
+    if (plantId) {
+      plant = await Plant.findById(plantId);
+      if (plant && plant.userId.toString() === req.user._id.toString()) {
+        plantContext = buildPlantContext(plant, req.user);
+        // Use plant species as name if not provided
+        if (!effectivePlantName || effectivePlantName === 'Unknown plant') {
+          effectivePlantName = plant.species;
+        }
+      }
+    }
+
+    // Analyze symptoms with AI (now with plant context)
+    const analysis = await analyzeTextSymptoms(effectivePlantName, symptoms, plantContext);
 
     if (!analysis.success) {
       return res.status(500).json({
@@ -113,22 +159,18 @@ const analyzeDiseaseByText = async (req, res) => {
       });
     }
 
-    // If plantId provided, update plant status
-    if (plantId) {
-      const plant = await Plant.findById(plantId);
-
-      if (plant && plant.userId.toString() === req.user._id.toString()) {
-        // Update plant status based on analysis
-        if (!analysis.data.isHealthy) {
-          plant.status = analysis.data.severity === 'severe' ? 'diseased' : 'needs-attention';
-          plant.healthScore = Math.max(20, 100 - (analysis.data.confidence || 50));
-        } else {
-          plant.status = 'healthy';
-          plant.healthScore = Math.min(100, analysis.data.confidence || 90);
-        }
-
-        await plant.save();
+    // If plant found, update plant status
+    if (plant && plant.userId.toString() === req.user._id.toString()) {
+      // Update plant status based on analysis
+      if (!analysis.data.isHealthy) {
+        plant.status = analysis.data.severity === 'severe' ? 'diseased' : 'needs-attention';
+        plant.healthScore = Math.max(20, 100 - (analysis.data.confidence || 50));
+      } else {
+        plant.status = 'healthy';
+        plant.healthScore = Math.min(100, analysis.data.confidence || 90);
       }
+
+      await plant.save();
     }
 
     res.status(200).json({

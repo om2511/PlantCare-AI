@@ -143,19 +143,46 @@ Return ONLY valid JSON (no markdown):
 /**
  * Generate water quality recommendations using AI
  */
-const generateWaterQualityAdvice = async (plantName, waterSource) => {
+const generateWaterQualityAdvice = async (plantName, waterSource, plantContext = null) => {
   try {
-    const prompt = `You are a plant care expert.
+    let contextInfo = '';
+    if (plantContext) {
+      const parts = [];
+      if (plantContext.soilType) parts.push(`Soil Type: ${plantContext.soilType}`);
+      if (plantContext.wateringNeeds) parts.push(`Watering Needs: ${plantContext.wateringNeeds}`);
+      if (plantContext.sunlight) parts.push(`Sunlight: ${plantContext.sunlight}`);
+      if (plantContext.location) parts.push(`Growing Location: ${plantContext.location}`);
+      if (plantContext.city) parts.push(`User City: ${plantContext.city}, India`);
+      if (plantContext.climateZone) parts.push(`Climate Zone: ${plantContext.climateZone}`);
+      if (parts.length > 0) {
+        contextInfo = `\n\nPlant Growing Conditions:\n${parts.join('\n')}`;
+      }
+    }
+
+    const season = getCurrentSeason();
+
+    const prompt = `You are an expert in plant water quality and irrigation, specializing in Indian gardening conditions.
 
 Plant: ${plantName}
 Water Source: ${waterSource}
+Current Season: ${season}${contextInfo}
 
-Provide water quality advice for this plant. Return ONLY valid JSON (no markdown):
+Analyze the water quality suitability for this specific plant. Consider:
+1. pH sensitivity of this plant species
+2. How the water source interacts with the soil type
+3. Mineral content impact on this plant
+4. Seasonal watering adjustments for Indian climate
+5. Local water conditions in India
+
+Return ONLY valid JSON (no markdown):
 {
   "suitability": "<excellent/good/suitable/not-recommended>",
-  "recommendation": "<brief recommendation>",
-  "preparation": "<any preparation needed before using this water>",
-  "frequency": "<how often to use this water type>"
+  "recommendation": "<detailed recommendation specific to this plant and water source>",
+  "preparation": "<specific preparation steps before using this water>",
+  "frequency": "<how often to use this water type>",
+  "phCompatibility": "<pH analysis - how this water source pH works with this plant's needs>",
+  "mineralAnalysis": "<analysis of mineral content impact - calcium, chlorine, fluoride, etc.>",
+  "alternativeWaterTip": "<suggestion for alternative or complementary water source for best results>"
 }`;
 
     const completion = await groq.chat.completions.create({
@@ -167,7 +194,7 @@ Provide water quality advice for this plant. Return ONLY valid JSON (no markdown
       ],
       model: 'llama-3.3-70b-versatile',
       temperature: 0.5,
-      max_tokens: 512
+      max_tokens: 768
     });
 
     const response = completion.choices[0]?.message?.content || '';
@@ -184,7 +211,10 @@ Provide water quality advice for this plant. Return ONLY valid JSON (no markdown
       suitability: 'suitable',
       recommendation: 'This water source is generally suitable for most plants',
       preparation: 'Let water sit for 24 hours before use',
-      frequency: 'Can be used regularly'
+      frequency: 'Can be used regularly',
+      phCompatibility: 'Most plants tolerate a pH range of 6.0-7.0',
+      mineralAnalysis: 'Monitor for mineral buildup over time',
+      alternativeWaterTip: 'Consider mixing with rainwater for optimal results'
     };
   }
 };
@@ -318,11 +348,168 @@ Return ONLY valid JSON (no markdown):
   }
 };
 
+/**
+ * Generate soil suggestion for a plant
+ */
+const generateSoilSuggestion = async (plantContext) => {
+  try {
+    const season = getCurrentSeason();
+
+    const prompt = `You are an expert horticulturist specializing in Indian gardening and soil science.
+
+Plant: ${plantContext.species || 'Unknown'}
+${plantContext.scientificName ? `Scientific Name: ${plantContext.scientificName}` : ''}
+Category: ${plantContext.category || 'other'}
+Growing Location: ${plantContext.location || 'balcony'}
+Current Soil: ${plantContext.soilType || 'Unknown'}
+Sunlight: ${plantContext.sunlight || 'Unknown'}
+${plantContext.city ? `Location: ${plantContext.city}, India` : ''}
+${plantContext.climateZone ? `Climate: ${plantContext.climateZone}` : ''}
+Season: ${season}
+
+Provide a comprehensive soil guide for this plant, considering Indian conditions and locally available materials.
+
+Return ONLY valid JSON (no markdown):
+{
+  "idealSoilType": "<ideal soil type name>",
+  "soilMixRecipe": [
+    {"component": "<component name>", "ratio": <percentage as number>, "purpose": "<why this component>"}
+  ],
+  "phRange": {"min": <number>, "max": <number>, "ideal": <number>},
+  "drainageNeeds": "<excellent/good/moderate/low - with explanation>",
+  "organicMatter": "<recommended organic matter additions and frequency>",
+  "fertilizerRecommendation": "<specific fertilizer type, NPK ratio, and schedule>",
+  "commonProblems": [
+    {"problem": "<soil problem name>", "solution": "<how to fix it>"}
+  ],
+  "localAvailability": "<where to find these soil components in India - nurseries, online, local alternatives>",
+  "seasonalAdjustment": "<how to adjust soil care for current season>"
+}`;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.5,
+      max_tokens: 1024
+    });
+
+    const response = completion.choices[0]?.message?.content || '';
+
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('AI did not return valid JSON');
+    }
+
+    return JSON.parse(jsonMatch[0]);
+  } catch (error) {
+    console.error('❌ AI soil suggestion error:', error.message);
+    return {
+      idealSoilType: 'Well-drained potting mix',
+      soilMixRecipe: [
+        { component: 'Garden Soil', ratio: 40, purpose: 'Base structure' },
+        { component: 'Cocopeat', ratio: 30, purpose: 'Moisture retention' },
+        { component: 'Vermicompost', ratio: 20, purpose: 'Nutrients' },
+        { component: 'Perlite', ratio: 10, purpose: 'Drainage' }
+      ],
+      phRange: { min: 6.0, max: 7.0, ideal: 6.5 },
+      drainageNeeds: 'Good - ensure pots have drainage holes',
+      organicMatter: 'Add vermicompost every 2-3 months',
+      fertilizerRecommendation: 'Balanced NPK (19-19-19) every 2 weeks during growing season',
+      commonProblems: [
+        { problem: 'Waterlogging', solution: 'Add perlite and ensure drainage holes' },
+        { problem: 'Nutrient depletion', solution: 'Top-dress with compost monthly' }
+      ],
+      localAvailability: 'Available at local nurseries and online platforms like Amazon, Ugaoo',
+      seasonalAdjustment: 'Reduce watering frequency and adjust soil moisture based on season'
+    };
+  }
+};
+
+/**
+ * Generate companion planting suggestions
+ */
+const generateCompanionPlantingSuggestions = async (userPlants, userConditions) => {
+  try {
+    const plantList = userPlants.map(p => `${p.species} (${p.category}, ${p.location})`).join(', ');
+
+    const prompt = `You are an expert in companion planting and Indian home gardening.
+
+User's Plants: ${plantList}
+Location: ${userConditions.city || 'India'}, ${userConditions.state || ''}
+Climate: ${userConditions.climateZone || 'tropical'}
+Growing Space: ${userConditions.balconyType || 'balcony'}
+Season: ${getCurrentSeason()}
+
+Analyze the compatibility of these plants growing together and suggest improvements.
+
+Return ONLY valid JSON (no markdown):
+{
+  "compatibilityScore": <number 0-100>,
+  "compatibilitySummary": "<brief overall assessment>",
+  "goodPairings": [
+    {"plants": ["<plant1>", "<plant2>"], "benefit": "<why they grow well together>"}
+  ],
+  "badPairings": [
+    {"plants": ["<plant1>", "<plant2>"], "reason": "<why they should be separated>"}
+  ],
+  "suggestedCompanions": [
+    {"plant": "<new plant name>", "reason": "<why it would complement existing garden>", "benefitsFor": ["<existing plant it helps>"]}
+  ],
+  "layoutTips": ["<spatial arrangement suggestions>"],
+  "pestControlBenefits": [
+    {"plant": "<plant name>", "repels": "<pest it repels>", "protects": "<which plants benefit>"}
+  ]
+}`;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.5,
+      max_tokens: 1024
+    });
+
+    const response = completion.choices[0]?.message?.content || '';
+
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('AI did not return valid JSON');
+    }
+
+    return JSON.parse(jsonMatch[0]);
+  } catch (error) {
+    console.error('❌ AI companion planting error:', error.message);
+    return {
+      compatibilityScore: 70,
+      compatibilitySummary: 'Your garden has a good mix of plants. Some adjustments could improve growth.',
+      goodPairings: [],
+      badPairings: [],
+      suggestedCompanions: [
+        { plant: 'Tulsi (Holy Basil)', reason: 'Natural pest repellent and beneficial for most plants', benefitsFor: ['All plants'] },
+        { plant: 'Marigold', reason: 'Repels harmful insects and attracts pollinators', benefitsFor: ['Vegetables', 'Herbs'] }
+      ],
+      layoutTips: ['Place taller plants on the north side to avoid shading smaller ones', 'Group plants with similar water needs together'],
+      pestControlBenefits: []
+    };
+  }
+};
+
 module.exports = {
   generateCareSchedule,
   generateSeasonalTips,
   generateWaterQualityAdvice,
   generateGeneralWaterQualityAdvice,
   generatePlantSuggestions,
+  generateSoilSuggestion,
+  generateCompanionPlantingSuggestions,
   getCurrentSeason
 };
