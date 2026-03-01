@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { plantAPI, careAPI, waterQualityAPI } from '../../utils/api';
 import Layout from '../../components/layout/Layout';
+import AccuracyBadge from '../../components/common/AccuracyBadge';
 
 const PlantDetails = () => {
   const { id } = useParams();
@@ -27,6 +28,9 @@ const PlantDetails = () => {
   const [showSoilModal, setShowSoilModal] = useState(false);
   const [soilGuide, setSoilGuide] = useState(null);
   const [loadingSoilGuide, setLoadingSoilGuide] = useState(false);
+
+  const [waterAccuracyScore, setWaterAccuracyScore] = useState(null);
+  const [soilAccuracyScore, setSoilAccuracyScore] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -96,6 +100,7 @@ const PlantDetails = () => {
 
       if (response.data.success) {
         setWaterAdvice(response.data.data.advice);
+        setWaterAccuracyScore(response.data.data.accuracyScore ?? null);
       }
 
       setLoadingWaterAdvice(false);
@@ -111,6 +116,7 @@ const PlantDetails = () => {
       const response = await plantAPI.getSoilGuide(id);
       if (response.data.success) {
         setSoilGuide(response.data.data.soilGuide);
+        setSoilAccuracyScore(response.data.data.accuracyScore ?? null);
       }
       setLoadingSoilGuide(false);
     } catch (err) {
@@ -720,7 +726,7 @@ const PlantDetails = () => {
 
       {/* Water Quality Modal */}
       {showWaterModal && (
-        <Modal onClose={() => { setShowWaterModal(false); setWaterAdvice(null); }}>
+        <Modal onClose={() => { setShowWaterModal(false); setWaterAdvice(null); setWaterAccuracyScore(null); }}>
           <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0">
               <span className="text-xl sm:text-2xl">💧</span>
@@ -824,11 +830,15 @@ const PlantDetails = () => {
                     <p className="text-xs sm:text-sm text-teal-700 dark:text-teal-400 break-words">{waterAdvice.alternativeWaterTip}</p>
                   </div>
                 )}
+                <AccuracyBadge
+                  score={waterAccuracyScore}
+                  tip="Add soil type and location to your plant profile for higher accuracy"
+                />
               </div>
             )}
 
             <button
-              onClick={() => { setShowWaterModal(false); setWaterAdvice(null); }}
+              onClick={() => { setShowWaterModal(false); setWaterAdvice(null); setWaterAccuracyScore(null); }}
               className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
             >
               Close
@@ -839,7 +849,7 @@ const PlantDetails = () => {
 
       {/* Soil Guide Modal */}
       {showSoilModal && (
-        <Modal onClose={() => { setShowSoilModal(false); setSoilGuide(null); }}>
+        <Modal onClose={() => { setShowSoilModal(false); setSoilGuide(null); setSoilAccuracyScore(null); }}>
           <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0">
               <span className="text-xl sm:text-2xl">🌍</span>
@@ -995,6 +1005,11 @@ const PlantDetails = () => {
                   </div>
                 )}
 
+                <AccuracyBadge
+                  score={soilAccuracyScore}
+                  tip="Complete your plant profile (soil type, location, climate zone) for higher accuracy"
+                />
+
                 <button
                   onClick={handleGetSoilGuide}
                   className="w-full py-2.5 border-2 border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-400 rounded-xl text-sm font-semibold hover:bg-amber-50 dark:hover:bg-amber-900/30 transition-all flex items-center justify-center gap-2"
@@ -1005,7 +1020,7 @@ const PlantDetails = () => {
             )}
 
             <button
-              onClick={() => { setShowSoilModal(false); setSoilGuide(null); }}
+              onClick={() => { setShowSoilModal(false); setSoilGuide(null); setSoilAccuracyScore(null); }}
               className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
             >
               Close

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import { plantAPI, diseaseAPI } from '../../utils/api';
+import AccuracyBadge from '../../components/common/AccuracyBadge';
 
 const DiseaseDetection = () => {
   const [detectionMode, setDetectionMode] = useState('image'); // 'image' or 'text'
@@ -531,6 +532,12 @@ const DiseaseDetection = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Accuracy Score */}
+                  <AccuracyBadge
+                    score={result.accuracyScore}
+                    tip="Select your plant from the dropdown above to get a more plant-specific diagnosis"
+                  />
 
                   {/* Symptoms */}
                   {result.analysis.symptoms && result.analysis.symptoms.length > 0 && (

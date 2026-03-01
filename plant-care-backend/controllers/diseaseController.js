@@ -3,6 +3,27 @@ const { analyzePlantImage, analyzeTextSymptoms } = require('../services/diseaseD
 const { getCurrentSeason } = require('../services/aiServiceGroq');
 
 /**
+ * Compute context-richness accuracy score (0–100)
+ * Blends how much plant-specific data was available + AI confidence
+ */
+const computeAccuracyScore = (plantContext, aiConfidence, plantMismatch) => {
+  let contextScore = 20; // base: season always known
+  if (plantContext) {
+    if (plantContext.species)     contextScore += 20;
+    if (plantContext.category)    contextScore += 10;
+    if (plantContext.soilType)    contextScore += 15;
+    if (plantContext.location)    contextScore += 10;
+    if (plantContext.sunlight)    contextScore += 10;
+    if (plantContext.city)        contextScore += 10;
+    if (plantContext.climateZone) contextScore += 5;
+  }
+  contextScore = Math.min(100, contextScore);
+  const blended = Math.round(contextScore * 0.45 + (aiConfidence || 50) * 0.55);
+  const score = plantMismatch ? Math.min(blended, 55) : blended;
+  return Math.max(15, Math.min(100, score));
+};
+
+/**
  * Build plantContext object from plant and user data
  */
 const buildPlantContext = (plant, user) => {
@@ -98,11 +119,18 @@ const analyzeDisease = async (req, res) => {
       await plant.save();
     }
 
+    const accuracyScore = computeAccuracyScore(
+      plantContext,
+      analysis.data.confidence,
+      analysis.data.plantMismatch
+    );
+
     res.status(200).json({
       success: true,
       data: {
         imageUrl,
         analysis: analysis.data,
+        accuracyScore,
         plantUpdated: !!plantId
       }
     });
@@ -173,10 +201,17 @@ const analyzeDiseaseByText = async (req, res) => {
       await plant.save();
     }
 
+    const accuracyScore = computeAccuracyScore(
+      plantContext,
+      analysis.data.confidence,
+      false
+    );
+
     res.status(200).json({
       success: true,
       data: {
         analysis: analysis.data,
+        accuracyScore,
         plantUpdated: !!plantId
       }
     });

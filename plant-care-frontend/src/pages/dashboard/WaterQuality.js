@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import api from '../../utils/api';
+import AccuracyBadge from '../../components/common/AccuracyBadge';
 
 const WaterQuality = () => {
   const navigate = useNavigate();
@@ -474,6 +475,51 @@ const WaterQuality = () => {
                           {advice.advice?.frequency || 'Can be used as needed.'}
                         </p>
                       </div>
+
+                      {/* pH Compatibility */}
+                      {advice.advice?.phCompatibility && (
+                        <div className="bg-purple-50 dark:bg-purple-900/30 rounded-xl p-4">
+                          <h4 className="font-bold text-purple-800 dark:text-purple-300 mb-2 flex items-center">
+                            <span className="mr-2">🧪</span>
+                            pH Compatibility
+                          </h4>
+                          <p className="text-purple-700 dark:text-purple-400">
+                            {advice.advice.phCompatibility}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Mineral Analysis */}
+                      {advice.advice?.mineralAnalysis && (
+                        <div className="bg-teal-50 dark:bg-teal-900/30 rounded-xl p-4">
+                          <h4 className="font-bold text-teal-800 dark:text-teal-300 mb-2 flex items-center">
+                            <span className="mr-2">💎</span>
+                            Mineral Analysis
+                          </h4>
+                          <p className="text-teal-700 dark:text-teal-400">
+                            {advice.advice.mineralAnalysis}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Alternative Water Tip */}
+                      {advice.advice?.alternativeWaterTip && (
+                        <div className="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl p-4">
+                          <h4 className="font-bold text-indigo-800 dark:text-indigo-300 mb-2 flex items-center">
+                            <span className="mr-2">🔄</span>
+                            Alternative Water Tip
+                          </h4>
+                          <p className="text-indigo-700 dark:text-indigo-400">
+                            {advice.advice.alternativeWaterTip}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Accuracy Score */}
+                      <AccuracyBadge
+                        score={advice.accuracyScore}
+                        tip="Select a specific plant (For My Plant mode) to get a more tailored analysis"
+                      />
                     </div>
                   </div>
 

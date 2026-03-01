@@ -386,6 +386,21 @@ const getSeasonalTips = async (req, res) => {
   }
 };
 
+/**
+ * Compute context-richness accuracy score (0–100) for soil guide
+ */
+const computeSoilContextScore = (plantContext) => {
+  let score = 0;
+  if (plantContext.species)       score += 30;
+  if (plantContext.category)      score += 10;
+  if (plantContext.location)      score += 10;
+  if (plantContext.soilType)      score += 15;
+  if (plantContext.sunlight)      score += 10;
+  if (plantContext.city)          score += 15;
+  if (plantContext.climateZone)   score += 10;
+  return Math.min(100, score);
+};
+
 // @desc    Get AI soil guide for a plant
 // @route   GET /api/plants/:id/soil-guide
 // @access  Private
@@ -414,13 +429,15 @@ const getSoilSuggestion = async (req, res) => {
     };
 
     const soilGuide = await generateSoilSuggestion(plantContext);
+    const accuracyScore = computeSoilContextScore(plantContext);
 
     res.status(200).json({
       success: true,
       data: {
         plant: plant.species,
         season: getCurrentSeason(),
-        soilGuide
+        soilGuide,
+        accuracyScore
       }
     });
   } catch (error) {

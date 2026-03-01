@@ -1,6 +1,20 @@
 const Plant = require('../models/Plant');
 const { generateWaterQualityAdvice, generateGeneralWaterQualityAdvice } = require('../services/aiServiceGroq');
 
+/**
+ * Compute context-richness accuracy score (0–100) for water quality advice
+ */
+const computeWaterContextScore = (plantContext) => {
+  let score = 0;
+  if (plantContext.species)       score += 30;
+  if (plantContext.soilType)      score += 20;
+  if (plantContext.wateringNeeds) score += 15;
+  if (plantContext.sunlight)      score += 10;
+  if (plantContext.city)          score += 15;
+  if (plantContext.climateZone)   score += 10;
+  return Math.min(100, score);
+};
+
 // @desc    Get water quality advice for a plant
 // @route   GET /api/water-quality/:plantId/:waterSource
 // @access  Private
@@ -48,12 +62,15 @@ const getWaterQualityAdvice = async (req, res) => {
     // Get AI-generated water quality advice with full context
     const advice = await generateWaterQualityAdvice(plant.species, waterSource, plantContext);
 
+    const accuracyScore = computeWaterContextScore(plantContext);
+
     res.status(200).json({
       success: true,
       data: {
         plant: plant.species,
         waterSource,
-        advice
+        advice,
+        accuracyScore
       }
     });
   } catch (error) {
@@ -90,7 +107,8 @@ const getGeneralWaterQualityAdvice = async (req, res) => {
       data: {
         plant: 'General Plants',
         waterSource,
-        advice
+        advice,
+        accuracyScore: 45
       }
     });
   } catch (error) {
