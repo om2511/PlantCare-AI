@@ -371,12 +371,12 @@ const WaterQuality = () => {
                   </p>
 
                   {/* Tips Section */}
-                  <div className="mt-8 w-full max-w-md">
+                  <div className="mt-8 max-w-sm">
                     <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center justify-center">
                       <span className="mr-2">💡</span>
                       Quick Water Tips
                     </h4>
-                    <div className="space-y-2 text-left">
+                    <div className="space-y-2">
                       <div className="flex items-start space-x-2 text-sm text-gray-600 dark:text-gray-400">
                         <span className="text-blue-500">•</span>
                         <span>Let tap water sit for 24 hours to remove chlorine</span>
@@ -432,9 +432,9 @@ const WaterQuality = () => {
                       </div>
                     </div>
 
-                    <div className="p-6">
+                    <div className="p-6 space-y-4">
                       {/* Suitability Badge */}
-                      <div className="flex items-center justify-center mb-6">
+                      <div className="flex items-center justify-center">
                         <div className={`px-6 py-3 rounded-full ${getSuitabilityColor(advice.advice?.suitability)} dark:bg-opacity-30 flex items-center space-x-2`}>
                           <span className="text-2xl">{getSuitabilityIcon(advice.advice?.suitability)}</span>
                           <span className="text-xl font-bold capitalize">
@@ -444,7 +444,7 @@ const WaterQuality = () => {
                       </div>
 
                       {/* Recommendation */}
-                      <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4">
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
                         <h4 className="font-bold text-gray-800 dark:text-white mb-2 flex items-center">
                           <span className="mr-2">📋</span>
                           Recommendation
@@ -455,7 +455,7 @@ const WaterQuality = () => {
                       </div>
 
                       {/* Preparation */}
-                      <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4 mb-4">
+                      <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-4">
                         <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
                           <span className="mr-2">🔧</span>
                           Preparation Steps
