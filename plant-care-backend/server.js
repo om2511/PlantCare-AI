@@ -1,13 +1,18 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const cron = require('node-cron');
 const connectDB = require('./config/db');
+const { initWebPush, sendDailyPlantReminders } = require('./services/notificationService');
 
 // Load environment variables
 dotenv.config();
 
 // Connect to database
 connectDB();
+
+// Initialize web push
+initWebPush();
 
 // Initialize express app
 const app = express();
@@ -34,6 +39,7 @@ app.use('/api/care', require('./routes/care'));
 app.use('/api/plant-data', require('./routes/plantData'));
 app.use('/api/water-quality', require('./routes/waterQuality'));
 app.use('/api/disease', require('./routes/disease'));
+app.use('/api/notifications', require('./routes/notifications'));
 
 // Health check route
 app.get('/', (req, res) => {
@@ -60,6 +66,12 @@ app.use((err, req, res, next) => {
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
+});
+
+// Daily plant reminders — 8:00 AM IST = 2:30 AM UTC
+cron.schedule('30 2 * * *', () => {
+  console.log('⏰ Cron: sending daily plant reminders');
+  sendDailyPlantReminders();
 });
 
 // Start server

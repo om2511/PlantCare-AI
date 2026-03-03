@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authAPI } from '../utils/api';
+import { subscribeToNotifications, getPermissionStatus } from '../utils/notifications';
 
 const AuthContext = createContext();
 
@@ -38,6 +39,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
+        if (getPermissionStatus() !== 'denied') {
+          subscribeToNotifications().catch(() => {});
+        }
         return { success: true };
       }
     } catch (err) {
@@ -58,6 +62,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
+        if (getPermissionStatus() !== 'denied') {
+          subscribeToNotifications().catch(() => {});
+        }
         return { success: true };
       }
     } catch (err) {

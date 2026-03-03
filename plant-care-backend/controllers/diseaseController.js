@@ -1,6 +1,7 @@
 const Plant = require('../models/Plant');
 const { analyzePlantImage, analyzeTextSymptoms } = require('../services/diseaseDetectionService');
 const { getCurrentSeason } = require('../services/aiServiceGroq');
+const { sendToUser } = require('../services/notificationService');
 
 /**
  * Compute context-richness accuracy score (0–100)
@@ -125,6 +126,20 @@ const analyzeDisease = async (req, res) => {
       analysis.data.plantMismatch
     );
 
+    // Send push notification if a disease (not healthy) was detected
+    const diseaseResult = analysis.data.disease || '';
+    const isHealthyResult = analysis.data.isHealthy ||
+      diseaseResult.toLowerCase().includes('healthy') ||
+      diseaseResult.toLowerCase().includes('no disease');
+
+    if (!isHealthyResult && plant) {
+      sendToUser(plant.userId, {
+        title: '⚠️ Disease Alert!',
+        body: `${plant.species}: ${diseaseResult} detected. Tap for treatment advice.`,
+        data: { url: '/disease-detection' }
+      }).catch(() => {}); // fire-and-forget
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -206,6 +221,20 @@ const analyzeDiseaseByText = async (req, res) => {
       analysis.data.confidence,
       false
     );
+
+    // Send push notification if a disease (not healthy) was detected
+    const diseaseResult = analysis.data.disease || '';
+    const isHealthyResult = analysis.data.isHealthy ||
+      diseaseResult.toLowerCase().includes('healthy') ||
+      diseaseResult.toLowerCase().includes('no disease');
+
+    if (!isHealthyResult && plant) {
+      sendToUser(plant.userId, {
+        title: '⚠️ Disease Alert!',
+        body: `${plant.species}: ${diseaseResult} detected. Tap for treatment advice.`,
+        data: { url: '/disease-detection' }
+      }).catch(() => {}); // fire-and-forget
+    }
 
     res.status(200).json({
       success: true,
