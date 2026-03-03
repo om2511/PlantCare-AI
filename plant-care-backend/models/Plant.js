@@ -39,6 +39,10 @@ const plantSchema = new mongoose.Schema({
     note: {
       type: String,
       default: ''
+    },
+    diseaseData: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null
     }
   }],
   plantedDate: {

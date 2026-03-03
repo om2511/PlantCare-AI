@@ -109,12 +109,13 @@ const analyzeDisease = async (req, res) => {
         plant.healthScore = Math.min(100, analysis.data.confidence || 90);
       }
 
-      // Add image to plant
+      // Add image to plant with full analysis data
       plant.images.push({
         url: imageUrl,
         publicId: req.file.filename,
         uploadedAt: Date.now(),
-        note: `Disease check: ${analysis.data.disease}`
+        note: `Disease check: ${analysis.data.disease}`,
+        diseaseData: analysis.data
       });
 
       await plant.save();

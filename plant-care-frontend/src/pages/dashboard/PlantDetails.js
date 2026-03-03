@@ -33,6 +33,7 @@ const PlantDetails = () => {
   const [soilAccuracyScore, setSoilAccuracyScore] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDiseaseScan, setSelectedDiseaseScan] = useState(null);
 
   const fetchPlantData = useCallback(async () => {
     try {
@@ -610,23 +611,23 @@ const PlantDetails = () => {
                 <div className="space-y-3">
                   {diseaseHistory.map((img, index) => {
                     const diseaseName = img.note.replace('Disease check: ', '');
-                    const isHealthy = diseaseName.toLowerCase().includes('healthy') || diseaseName.toLowerCase().includes('no disease');
+                    const isHealthy = (img.diseaseData?.isHealthy) ??
+                      (diseaseName.toLowerCase().includes('healthy') || diseaseName.toLowerCase().includes('no disease'));
                     return (
-                      <div
+                      <button
                         key={img._id || index}
-                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all hover:shadow-md ${
+                        onClick={() => setSelectedDiseaseScan(img)}
+                        className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border-2 transition-all hover:shadow-md cursor-pointer ${
                           isHealthy
-                            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
-                            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 hover:border-green-400 dark:hover:border-green-500'
+                            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:border-red-400 dark:hover:border-red-500'
                         } ${index === 0 ? 'ring-2 ring-offset-2 dark:ring-offset-gray-800 ' + (isHealthy ? 'ring-green-300 dark:ring-green-600' : 'ring-red-300 dark:ring-red-600') : ''}`}
                       >
-                        <a href={img.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
-                          <img
-                            src={img.url}
-                            alt={diseaseName}
-                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover shadow-md hover:scale-105 transition-transform"
-                          />
-                        </a>
+                        <img
+                          src={img.url}
+                          alt={diseaseName}
+                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover shadow-md flex-shrink-0"
+                        />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -647,7 +648,10 @@ const PlantDetails = () => {
                             {new Date(img.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </p>
                         </div>
-                      </div>
+                        <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     );
                   })}
                 </div>
@@ -1147,6 +1151,204 @@ const PlantDetails = () => {
           </div>
         </Modal>
       )}
+
+      {/* Disease Scan Detail Modal */}
+      {selectedDiseaseScan && (() => {
+        const d = selectedDiseaseScan.diseaseData;
+        const diseaseName = selectedDiseaseScan.note.replace('Disease check: ', '');
+        const isHealthy = d?.isHealthy ??
+          (diseaseName.toLowerCase().includes('healthy') || diseaseName.toLowerCase().includes('no disease'));
+        const severity = d?.severity;
+        const severityColor = severity === 'severe'
+          ? 'text-red-600 dark:text-red-400'
+          : severity === 'moderate'
+            ? 'text-amber-600 dark:text-amber-400'
+            : 'text-yellow-600 dark:text-yellow-400';
+
+        return (
+          <Modal onClose={() => setSelectedDiseaseScan(null)}>
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0 bg-gradient-to-br ${isHealthy ? 'from-green-500 to-emerald-500' : 'from-red-500 to-rose-500'}`}>
+                <span className="text-xl sm:text-2xl">{isHealthy ? '✓' : '🔬'}</span>
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white truncate">
+                  {isHealthy ? 'Healthy Plant' : diseaseName}
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                  {new Date(selectedDiseaseScan.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              </div>
+            </div>
+
+            {/* Scan image + status row */}
+            <div className="flex items-center gap-3 mb-4">
+              <a href={selectedDiseaseScan.url} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={selectedDiseaseScan.url}
+                  alt={diseaseName}
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shadow-md hover:scale-105 transition-transform flex-shrink-0"
+                />
+              </a>
+              <div className="flex flex-col gap-2">
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full w-fit ${isHealthy ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200'}`}>
+                  {isHealthy ? '✓ Healthy' : '⚠ Disease Detected'}
+                </span>
+                {d?.confidence != null && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    AI Confidence: <strong className="text-gray-700 dark:text-gray-200">{d.confidence}%</strong>
+                  </span>
+                )}
+                {!isHealthy && severity && (
+                  <span className={`text-xs font-semibold capitalize ${severityColor}`}>
+                    Severity: {severity}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* No stored details — old scan before feature existed */}
+            {!d && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700 text-sm text-amber-700 dark:text-amber-400">
+                Full details are only available for scans done after this feature was added. Run a new scan to see complete disease information.
+              </div>
+            )}
+
+            {d && (
+              <div className="space-y-3">
+                {/* Symptoms */}
+                {d.symptoms && d.symptoms.length > 0 && (
+                  <div className="p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-700">
+                    <h4 className="font-bold text-orange-800 dark:text-orange-300 mb-2 flex items-center gap-2 text-sm">
+                      <span>🔍</span> Symptoms
+                    </h4>
+                    <ul className="space-y-1">
+                      {d.symptoms.map((s, i) => (
+                        <li key={i} className="text-xs sm:text-sm text-orange-700 dark:text-orange-400 flex items-start gap-2">
+                          <span className="mt-0.5 flex-shrink-0">•</span><span>{s}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Causes */}
+                {d.causes && d.causes.length > 0 && (
+                  <div className="p-3 sm:p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-700">
+                    <h4 className="font-bold text-yellow-800 dark:text-yellow-300 mb-2 flex items-center gap-2 text-sm">
+                      <span>⚡</span> Causes
+                    </h4>
+                    <ul className="space-y-1">
+                      {d.causes.map((c, i) => (
+                        <li key={i} className="text-xs sm:text-sm text-yellow-700 dark:text-yellow-400 flex items-start gap-2">
+                          <span className="mt-0.5 flex-shrink-0">•</span><span>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Treatment */}
+                {d.treatment && (
+                  <div className="p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                    <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-3 flex items-center gap-2 text-sm">
+                      <span>💊</span> Treatment
+                    </h4>
+                    <div className="space-y-2">
+                      {d.treatment.immediate && (
+                        <div>
+                          <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide mb-0.5">Immediate</p>
+                          <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">{d.treatment.immediate}</p>
+                        </div>
+                      )}
+                      {d.treatment.shortTerm && (
+                        <div>
+                          <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide mb-0.5">Short-term</p>
+                          <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">{d.treatment.shortTerm}</p>
+                        </div>
+                      )}
+                      {d.treatment.longTerm && (
+                        <div>
+                          <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wide mb-0.5">Long-term</p>
+                          <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">{d.treatment.longTerm}</p>
+                        </div>
+                      )}
+                      {d.treatment.organicOptions && d.treatment.organicOptions.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wide mb-0.5">🌿 Organic Options</p>
+                          <ul className="space-y-0.5">
+                            {d.treatment.organicOptions.map((o, i) => (
+                              <li key={i} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5">
+                                <span className="mt-0.5 flex-shrink-0">•</span><span>{o}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {d.treatment.chemicalOptions && d.treatment.chemicalOptions.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 uppercase tracking-wide mb-0.5">🧪 Chemical Options</p>
+                          <ul className="space-y-0.5">
+                            {d.treatment.chemicalOptions.map((c, i) => (
+                              <li key={i} className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 flex items-start gap-1.5">
+                                <span className="mt-0.5 flex-shrink-0">•</span><span>{c}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Prevention */}
+                {d.prevention && d.prevention.length > 0 && (
+                  <div className="p-3 sm:p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-700">
+                    <h4 className="font-bold text-green-800 dark:text-green-300 mb-2 flex items-center gap-2 text-sm">
+                      <span>🛡️</span> Prevention
+                    </h4>
+                    <ul className="space-y-1">
+                      {d.prevention.map((p, i) => (
+                        <li key={i} className="text-xs sm:text-sm text-green-700 dark:text-green-400 flex items-start gap-2">
+                          <span className="mt-0.5 flex-shrink-0">•</span><span>{p}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Mismatch / low-confidence notes */}
+                {d.mismatchNote && (
+                  <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-700 text-xs text-amber-700 dark:text-amber-400">
+                    <span className="font-semibold">⚠ Note: </span>{d.mismatchNote}
+                  </div>
+                )}
+                {d.confidenceNote && (
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 text-xs text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold">ℹ Note: </span>{d.confidenceNote}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-2 sm:gap-3 mt-4 pt-2">
+              <Link
+                to="/disease-detection"
+                className="flex-1 bg-gradient-to-r from-red-500 to-rose-500 text-white py-2.5 rounded-xl text-sm font-bold hover:from-red-600 hover:to-rose-600 transition-all flex items-center justify-center gap-2"
+              >
+                <span>🔬</span><span>Scan Again</span>
+              </Link>
+              <button
+                onClick={() => setSelectedDiseaseScan(null)}
+                className="flex-1 py-2.5 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"
+              >
+                Close
+              </button>
+            </div>
+          </Modal>
+        );
+      })()}
     </Layout>
   );
 };
