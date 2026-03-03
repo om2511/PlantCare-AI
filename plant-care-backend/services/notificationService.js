@@ -3,14 +3,17 @@ const PushSubscription = require('../models/PushSubscription');
 const Plant = require('../models/Plant');
 
 /**
- * Configure web-push with VAPID credentials
+ * Configure web-push with VAPID credentials.
+ * Skips (with a warning) if env vars are not set so the server can still boot.
  */
 const initWebPush = () => {
-  webpush.setVapidDetails(
-    process.env.VAPID_EMAIL,
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
+  const { VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY } = process.env;
+  if (!VAPID_EMAIL || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+    console.warn('⚠️  VAPID env vars not set — push notifications disabled');
+    return;
+  }
+  webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  console.log('🔔 Web Push initialised');
 };
 
 /**
@@ -18,6 +21,7 @@ const initWebPush = () => {
  * Automatically removes stale subscriptions (410/404 responses).
  */
 const sendToUser = async (userId, payload) => {
+  if (!process.env.VAPID_PUBLIC_KEY) return; // push not configured
   const subscriptions = await PushSubscription.find({ userId });
   if (!subscriptions.length) return;
 

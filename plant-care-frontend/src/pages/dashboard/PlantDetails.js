@@ -248,6 +248,11 @@ const PlantDetails = () => {
 
   const statusConfig = getStatusConfig(plant.status);
 
+  // Disease scans are images whose note starts with "Disease check:"
+  const diseaseHistory = (plant.images || [])
+    .filter(img => img.note && img.note.startsWith('Disease check:'))
+    .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
@@ -556,6 +561,91 @@ const PlantDetails = () => {
                               </div>
                             )}
                           </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Disease Detection History */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-rose-500 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                    <span className="text-lg sm:text-xl">🔬</span>
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white truncate">Disease History</h2>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                      {diseaseHistory.length > 0 ? `${diseaseHistory.length} scan${diseaseHistory.length !== 1 ? 's' : ''} recorded` : 'No scans yet'}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to="/disease-detection"
+                  className="px-3 sm:px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-xl text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors whitespace-nowrap flex-shrink-0"
+                >
+                  Scan Again
+                </Link>
+              </div>
+
+              {diseaseHistory.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-3xl">🔬</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 dark:text-white mb-2">No Disease Scans Yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-4 text-sm">Run a disease scan to track your plant's health history</p>
+                  <Link
+                    to="/disease-detection"
+                    className="inline-flex items-center gap-2 text-red-600 dark:text-red-400 font-semibold hover:text-red-700 dark:hover:text-red-300 text-sm"
+                  >
+                    <span>🔬</span>
+                    <span>Scan for Disease</span>
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {diseaseHistory.map((img, index) => {
+                    const diseaseName = img.note.replace('Disease check: ', '');
+                    const isHealthy = diseaseName.toLowerCase().includes('healthy') || diseaseName.toLowerCase().includes('no disease');
+                    return (
+                      <div
+                        key={img._id || index}
+                        className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all hover:shadow-md ${
+                          isHealthy
+                            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
+                            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
+                        } ${index === 0 ? 'ring-2 ring-offset-2 dark:ring-offset-gray-800 ' + (isHealthy ? 'ring-green-300 dark:ring-green-600' : 'ring-red-300 dark:ring-red-600') : ''}`}
+                      >
+                        <a href={img.url} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                          <img
+                            src={img.url}
+                            alt={diseaseName}
+                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover shadow-md hover:scale-105 transition-transform"
+                          />
+                        </a>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              isHealthy
+                                ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
+                                : 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200'
+                            }`}>
+                              {isHealthy ? '✓ Healthy' : '⚠ Disease Detected'}
+                            </span>
+                            {index === 0 && (
+                              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300">
+                                Latest
+                              </span>
+                            )}
+                          </div>
+                          <p className="font-semibold text-gray-800 dark:text-white text-sm truncate">{diseaseName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {new Date(img.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </p>
                         </div>
                       </div>
                     );
