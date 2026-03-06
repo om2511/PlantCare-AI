@@ -8,4 +8,4 @@ Disallow: /profile
 Disallow: /settings
 
 # Sitemap
-Sitemap: https://plantcareai.vercel.app/sitemap.xml
+Sitemap: https://plant-care-ai-nine.vercel.app/sitemap.xml

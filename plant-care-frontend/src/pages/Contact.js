@@ -178,7 +178,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Website</h3>
-                      <p className="text-gray-600">plantcareai.vercel.app</p>
+                      <p className="text-gray-600">plant-care-ai-nine.vercel.app</p>
                       <p className="text-sm text-gray-500 mt-1">Visit our website for more information</p>
                     </div>
                   </div>

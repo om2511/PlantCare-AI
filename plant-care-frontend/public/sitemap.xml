@@ -5,35 +5,35 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <!-- Main Pages -->
   <url>
-    <loc>https://plantcareai.vercel.app/</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
   <url>
-    <loc>https://plantcareai.vercel.app/about</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/about</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
-    <loc>https://plantcareai.vercel.app/contact</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/contact</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
-    <loc>https://plantcareai.vercel.app/privacy</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/privacy</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://plantcareai.vercel.app/terms</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/terms</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -41,14 +41,14 @@
   
   <!-- Authentication Pages -->
   <url>
-    <loc>https://plantcareai.vercel.app/login</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/login</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
-    <loc>https://plantcareai.vercel.app/register</loc>
+    <loc>https://plant-care-ai-nine.vercel.app/register</loc>
     <lastmod>2026-03-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
