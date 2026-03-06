@@ -1,3 +1,11 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /dashboard
+Disallow: /add-plant
+Disallow: /plants/
+Disallow: /profile
+Disallow: /settings
+
+# Sitemap
+Sitemap: https://plantcareai.vercel.app/sitemap.xml
