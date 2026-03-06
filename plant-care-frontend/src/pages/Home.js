@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState({
-    features: true,
-    'how-it-works': true,
-    stats: true,
-    plants: true,
-    testimonials: true,
-    faq: true,
-  });
+  const [isVisible, setIsVisible] = useState({});
 
   // Redirect to dashboard if user is already logged in
   useEffect(() => {
@@ -23,7 +15,6 @@ const Home = () => {
   }, [isAuthenticated, loading, navigate]);
 
   useEffect(() => {
-    // Observer for scroll-triggered animations (optional enhancement)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -56,12 +47,6 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
-      <Helmet>
-        <title>PlantCare AI - Smart Plant Care & Garden Management App for India</title>
-        <meta name="description" content="Free AI-powered plant care app for Indian gardeners. Get personalized watering schedules, disease detection, seasonal tips, and expert care guides for 30+ Indian plant species." />
-        <link rel="canonical" href="https://plant-care-ai-nine.vercel.app/" />
-      </Helmet>
-      
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
         {/* Animated Background Elements */}
@@ -532,27 +517,24 @@ const Home = () => {
             <div>
               <h3 className="font-bold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link to="/about" className="hover:text-green-400 transition-colors">About Us</Link></li>
-                <li><Link to="/contact" className="hover:text-green-400 transition-colors">Contact</Link></li>
+                <li><Link to="/login" className="hover:text-green-400 transition-colors">Login</Link></li>
+                <li><Link to="/register" className="hover:text-green-400 transition-colors">Register</Link></li>
                 <li><a href="#features" className="hover:text-green-400 transition-colors">Features</a></li>
                 <li><a href="#faq" className="hover:text-green-400 transition-colors">FAQ</a></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">Legal</h3>
+              <h3 className="font-bold text-lg mb-4">Features</h3>
               <ul className="space-y-3 text-gray-400">
-                <li><Link to="/privacy" className="hover:text-green-400 transition-colors">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-green-400 transition-colors">Terms of Service</Link></li>
+                <li>AI Care Schedules</li>
+                <li>Disease Detection</li>
+                <li>Seasonal Tips</li>
+                <li>Water Quality</li>
               </ul>
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center text-gray-500">
             <p>© {new Date().getFullYear()} PlantCare AI. All rights reserved. Made with 💚 for Indian Gardeners</p>
-            <p className="mt-2 text-sm">
-              <Link to="/privacy" className="hover:text-green-400 transition-colors mx-2">Privacy</Link> | 
-              <Link to="/terms" className="hover:text-green-400 transition-colors mx-2">Terms</Link> | 
-              <Link to="/contact" className="hover:text-green-400 transition-colors mx-2">Contact</Link>
-            </p>
           </div>
         </div>
       </footer>
