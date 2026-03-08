@@ -11,3 +11,5 @@
 2026-03-08 06:10:15 UTC - Public contact forms should not present success without persistence. If no backend endpoint exists, implement one or explicitly label form as non-submitting; silent simulation creates false operational assumptions.
 
 2026-03-08 06:56:23 UTC - When adding a public contact form, also define how operators read submissions; persistence without retrieval creates an operational dead end. Pair submit endpoints with an access-controlled read path and explicit env-based admin authorization.
+
+2026-03-08 08:03:47 UTC - For long audit/history lists inside dense detail pages, internal scroll containers with explicit max heights preserve information density while preventing vertical page bloat and interaction fatigue.

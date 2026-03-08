@@ -253,6 +253,8 @@ const PlantDetails = () => {
   const diseaseHistory = (plant.images || [])
     .filter(img => img.note && img.note.startsWith('Disease check:'))
     .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+  const careHistoryScrollable = careLogs.length > 5;
+  const diseaseHistoryScrollable = diseaseHistory.length > 4;
 
   return (
     <Layout>
@@ -527,13 +529,13 @@ const PlantDetails = () => {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className={`${careHistoryScrollable ? 'max-h-[24rem] overflow-y-auto pr-2 space-y-2' : 'space-y-3'}`}>
                   {careLogs.map((log, index) => {
                     const activityConfig = getCareActivityIcon(log.activityType);
                     return (
                       <div
                         key={log._id}
-                        className={`p-4 rounded-xl border-2 border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 transition-all ${index === 0 ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-700/50'}`}
+                        className={`p-3 rounded-xl border-2 border-gray-100 dark:border-gray-600 hover:border-gray-200 dark:hover:border-gray-500 transition-all ${index === 0 ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-700/50'}`}
                       >
                         <div className="flex items-start gap-4">
                           <div className={`w-10 h-10 bg-gradient-to-br ${activityConfig.color} rounded-xl flex items-center justify-center text-lg shadow-md flex-shrink-0`}>
@@ -608,7 +610,7 @@ const PlantDetails = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className={`${diseaseHistoryScrollable ? 'max-h-[24rem] overflow-y-auto pr-2 space-y-2' : 'space-y-3'}`}>
                   {diseaseHistory.map((img, index) => {
                     const diseaseName = img.note.replace('Disease check: ', '');
                     const isHealthy = (img.diseaseData?.isHealthy) ??
@@ -617,7 +619,7 @@ const PlantDetails = () => {
                       <button
                         key={img._id || index}
                         onClick={() => setSelectedDiseaseScan(img)}
-                        className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border-2 transition-all hover:shadow-md cursor-pointer ${
+                        className={`w-full text-left flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all hover:shadow-md cursor-pointer ${
                           isHealthy
                             ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 hover:border-green-400 dark:hover:border-green-500'
                             : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:border-red-400 dark:hover:border-red-500'
