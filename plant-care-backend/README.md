@@ -99,6 +99,7 @@ Server runs on http://localhost:5000
 
 ### Contact
 - `POST /api/contact` - Submit public contact/support message
+- `GET /api/contact/messages` - View submitted messages (admin only)
 
 ## Project Structure
 ```

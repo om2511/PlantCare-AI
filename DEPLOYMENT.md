@@ -110,6 +110,7 @@ git push -u origin main
    | `VAPID_EMAIL` | Contact email for web push (e.g., `mailto:you@example.com`) |
    | `VAPID_PUBLIC_KEY` | Web Push VAPID public key |
    | `VAPID_PRIVATE_KEY` | Web Push VAPID private key |
+   | `ADMIN_EMAIL` | Admin account email allowed to read contact submissions |
    | `FRONTEND_URL` | Leave empty for now (add after frontend deploy) |
 
 6. Click **Create Web Service**
@@ -218,6 +219,7 @@ PERENUAL_API_KEY=xxx
 VAPID_EMAIL=mailto:you@example.com
 VAPID_PUBLIC_KEY=xxx
 VAPID_PRIVATE_KEY=xxx
+ADMIN_EMAIL=you@example.com
 FRONTEND_URL=https://your-frontend.vercel.app
 ```
 

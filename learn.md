@@ -9,3 +9,5 @@
 2026-03-08 05:49:34 UTC - Public legal/SEO pages should avoid unverifiable claims in metadata and body copy (e.g., fabricated ratings, hard guarantees, placeholder jurisdiction text). Using a shared layout component for legal/public pages prevents UI drift and duplicate markup bugs.
 
 2026-03-08 06:10:15 UTC - Public contact forms should not present success without persistence. If no backend endpoint exists, implement one or explicitly label form as non-submitting; silent simulation creates false operational assumptions.
+
+2026-03-08 06:56:23 UTC - When adding a public contact form, also define how operators read submissions; persistence without retrieval creates an operational dead end. Pair submit endpoints with an access-controlled read path and explicit env-based admin authorization.

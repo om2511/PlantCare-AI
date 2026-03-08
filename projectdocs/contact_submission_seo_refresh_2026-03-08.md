@@ -42,3 +42,18 @@ In progress: analysis started.
 
 ## Status
 Completed. Requires deploy + runtime verification.
+
+## Follow-up Request (2026-03-08)
+- Add navigational links to About, Contact, Privacy, and Terms so users can access those pages directly.
+- Clarify where submitted contact responses are stored and how to access them.
+
+## Navigation + Retrieval Follow-up (2026-03-08 06:56:23 UTC)
+- Added direct navigation links to legal/public pages in `Home.js` hero and footer (`/about`, `/contact`, `/privacy`, `/terms`).
+- Added legal/public links to authenticated navigation in `Navbar.js` (profile dropdown and mobile menu).
+- Added admin-only retrieval API for contact submissions:
+  - `GET /api/contact/messages` protected by auth and `ADMIN_EMAIL` match.
+- Added `ADMIN_EMAIL` in `render.yaml` and deployment docs.
+
+## How to Access Contact Responses
+- Submissions are stored in MongoDB `ContactMessage` collection.
+- You can fetch them via `GET /api/contact/messages` using a logged-in account whose email equals `ADMIN_EMAIL` env var.

@@ -42,6 +42,12 @@ const Navbar = () => {
     { path: '/disease-detection', label: 'Disease', icon: '🔬' },
     { path: '/suggestions', label: 'Suggestions', icon: '✨' },
   ];
+  const infoLinks = [
+    { path: '/about', label: 'About' },
+    { path: '/contact', label: 'Contact' },
+    { path: '/privacy', label: 'Privacy' },
+    { path: '/terms', label: 'Terms' }
+  ];
 
   const isActive = (path) => location.pathname === path;
 
@@ -207,6 +213,18 @@ const Navbar = () => {
                       </svg>
                       <span>Settings</span>
                     </Link>
+
+                    <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                    {infoLinks.map((link) => (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        className="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <span className="w-5 h-5 text-center text-gray-500 dark:text-gray-400">•</span>
+                        <span>{link.label}</span>
+                      </Link>
+                    ))}
                   </div>
 
                   {/* Logout */}
@@ -283,6 +301,17 @@ const Navbar = () => {
                 <span className="text-xl">⚙️</span>
                 <span>Settings</span>
               </Link>
+
+              {infoLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <span className="text-xl">ℹ️</span>
+                  <span>{link.label}</span>
+                </Link>
+              ))}
             </div>
 
             {/* Mobile Profile Section */}

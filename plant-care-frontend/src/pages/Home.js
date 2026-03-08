@@ -170,6 +170,24 @@ const Home = () => {
                 </div>
               ))}
             </div>
+
+            {/* Public Links */}
+            <div className="mt-8 flex flex-wrap justify-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.45s' }}>
+              {[
+                { to: '/about', label: 'About' },
+                { to: '/contact', label: 'Contact' },
+                { to: '/privacy', label: 'Privacy' },
+                { to: '/terms', label: 'Terms' }
+              ].map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="px-4 py-2 rounded-full border border-green-200 bg-white/70 text-green-700 text-sm font-semibold hover:bg-white transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -535,6 +553,8 @@ const Home = () => {
             <div>
               <h3 className="font-bold text-lg mb-4">Quick Links</h3>
               <ul className="space-y-3 text-gray-400">
+                <li><Link to="/about" className="hover:text-green-400 transition-colors">About</Link></li>
+                <li><Link to="/contact" className="hover:text-green-400 transition-colors">Contact</Link></li>
                 <li><Link to="/login" className="hover:text-green-400 transition-colors">Login</Link></li>
                 <li><Link to="/register" className="hover:text-green-400 transition-colors">Register</Link></li>
                 <li><a href="#features" className="hover:text-green-400 transition-colors">Features</a></li>
@@ -542,12 +562,10 @@ const Home = () => {
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-lg mb-4">Features</h3>
+              <h3 className="font-bold text-lg mb-4">Policies</h3>
               <ul className="space-y-3 text-gray-400">
-                <li>AI Care Schedules</li>
-                <li>Disease Detection</li>
-                <li>Seasonal Tips</li>
-                <li>Water Quality</li>
+                <li><Link to="/privacy" className="hover:text-green-400 transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-green-400 transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
