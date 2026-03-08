@@ -107,6 +107,9 @@ git push -u origin main
    | `GEMINI_API_KEY` | Your Google Gemini API key |
    | `GROQ_API_KEY` | Your Groq API key |
    | `PERENUAL_API_KEY` | Your Perenual API key |
+   | `VAPID_EMAIL` | Contact email for web push (e.g., `mailto:you@example.com`) |
+   | `VAPID_PUBLIC_KEY` | Web Push VAPID public key |
+   | `VAPID_PRIVATE_KEY` | Web Push VAPID private key |
    | `FRONTEND_URL` | Leave empty for now (add after frontend deploy) |
 
 6. Click **Create Web Service**
@@ -212,6 +215,9 @@ CLOUDINARY_API_SECRET=xxx
 GEMINI_API_KEY=xxx
 GROQ_API_KEY=xxx
 PERENUAL_API_KEY=xxx
+VAPID_EMAIL=mailto:you@example.com
+VAPID_PUBLIC_KEY=xxx
+VAPID_PRIVATE_KEY=xxx
 FRONTEND_URL=https://your-frontend.vercel.app
 ```
 

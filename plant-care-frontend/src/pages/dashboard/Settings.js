@@ -3,10 +3,14 @@ import { Link } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { getPermissionStatus, subscribeToNotifications, unsubscribeFromNotifications } from '../../utils/notifications';
 
 const Settings = () => {
   const { darkMode, toggleDarkMode } = useTheme();
   const { user } = useAuth();
+  const [notificationError, setNotificationError] = useState('');
+  const [notificationBusy, setNotificationBusy] = useState(false);
+  const [permissionStatus, setPermissionStatus] = useState(getPermissionStatus());
   const [notifications, setNotifications] = useState({
     careReminders: localStorage.getItem('notif_careReminders') !== 'false',
     weeklyReport: localStorage.getItem('notif_weeklyReport') !== 'false',
@@ -18,9 +22,28 @@ const Settings = () => {
   });
 
   // Handle notification toggle
-  const handleNotificationChange = (key) => {
+  const handleNotificationChange = async (key) => {
     const newValue = !notifications[key];
-    setNotifications(prev => ({ ...prev, [key]: newValue }));
+    setNotificationError('');
+
+    if (key === 'careReminders') {
+      setNotificationBusy(true);
+      try {
+        if (newValue) {
+          await subscribeToNotifications();
+        } else {
+          await unsubscribeFromNotifications();
+        }
+        setPermissionStatus(getPermissionStatus());
+      } catch (error) {
+        setNotificationError(error.message || 'Failed to update notification settings');
+        setNotificationBusy(false);
+        return;
+      }
+      setNotificationBusy(false);
+    }
+
+    setNotifications((prev) => ({ ...prev, [key]: newValue }));
     localStorage.setItem(`notif_${key}`, newValue.toString());
   };
 
@@ -128,6 +151,14 @@ const Settings = () => {
                 <span>🔔</span>
                 Notifications
               </h2>
+              {notificationError && (
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/50 dark:bg-red-900/20 dark:text-red-300">
+                  {notificationError}
+                </div>
+              )}
+              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                Browser permission status: <span className="font-semibold capitalize">{permissionStatus}</span>
+              </p>
 
               <div className="space-y-4">
                 {/* Care Reminders */}
@@ -143,9 +174,10 @@ const Settings = () => {
                   </div>
                   <button
                     onClick={() => handleNotificationChange('careReminders')}
+                    disabled={notificationBusy}
                     className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${
                       notifications.careReminders ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
-                    }`}
+                    } ${notificationBusy ? 'opacity-60 cursor-not-allowed' : ''}`}
                   >
                     <div
                       className={`absolute top-0.5 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 ${

@@ -2,16 +2,22 @@ const webpush = require('web-push');
 const PushSubscription = require('../models/PushSubscription');
 const Plant = require('../models/Plant');
 
+const isPushConfigured = () => {
+  const { VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY } = process.env;
+  return Boolean(VAPID_EMAIL && VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);
+};
+
 /**
  * Configure web-push with VAPID credentials.
  * Skips (with a warning) if env vars are not set so the server can still boot.
  */
 const initWebPush = () => {
-  const { VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY } = process.env;
-  if (!VAPID_EMAIL || !VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  if (!isPushConfigured()) {
     console.warn('⚠️  VAPID env vars not set — push notifications disabled');
     return;
   }
+
+  const { VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY } = process.env;
   webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
   console.log('🔔 Web Push initialised');
 };
@@ -21,7 +27,7 @@ const initWebPush = () => {
  * Automatically removes stale subscriptions (410/404 responses).
  */
 const sendToUser = async (userId, payload) => {
-  if (!process.env.VAPID_PUBLIC_KEY) return; // push not configured
+  if (!isPushConfigured()) return;
   const subscriptions = await PushSubscription.find({ userId });
   if (!subscriptions.length) return;
 
@@ -54,22 +60,25 @@ const sendToUser = async (userId, payload) => {
 const sendDailyPlantReminders = async () => {
   console.log('⏰ Running daily plant reminder notifications...');
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const endOfToday = new Date(now);
+    endOfToday.setHours(23, 59, 59, 999);
 
     const plants = await Plant.find({
       isActive: true,
       $or: [
-        { 'careSchedule.nextWateringDue': { $lte: today } },
-        { 'careSchedule.nextFertilizingDue': { $lte: today } }
+        { 'careSchedule.nextWateringDue': { $lte: endOfToday } },
+        { 'careSchedule.nextFertilizingDue': { $lte: endOfToday } },
+        { 'careSchedule.nextPruningDue': { $lte: endOfToday } }
       ]
     });
 
     console.log(`🌿 Found ${plants.length} plants needing reminders`);
 
     for (const plant of plants) {
-      const needsWater = plant.careSchedule?.nextWateringDue && plant.careSchedule.nextWateringDue <= today;
-      const needsFertilizer = plant.careSchedule?.nextFertilizingDue && plant.careSchedule.nextFertilizingDue <= today;
+      const needsWater = plant.careSchedule?.nextWateringDue && plant.careSchedule.nextWateringDue <= endOfToday;
+      const needsFertilizer = plant.careSchedule?.nextFertilizingDue && plant.careSchedule.nextFertilizingDue <= endOfToday;
+      const needsPruning = plant.careSchedule?.nextPruningDue && plant.careSchedule.nextPruningDue <= endOfToday;
 
       if (needsWater) {
         await sendToUser(plant.userId, {
@@ -86,6 +95,14 @@ const sendDailyPlantReminders = async () => {
           data: { url: `/plants/${plant._id}` }
         });
       }
+
+      if (needsPruning) {
+        await sendToUser(plant.userId, {
+          title: '✂️ Pruning Reminder',
+          body: `${plant.species} is due for pruning today.`,
+          data: { url: `/plants/${plant._id}` }
+        });
+      }
     }
 
     console.log('✅ Daily plant reminders sent');
@@ -94,4 +111,4 @@ const sendDailyPlantReminders = async () => {
   }
 };
 
-module.exports = { initWebPush, sendToUser, sendDailyPlantReminders };
+module.exports = { initWebPush, sendToUser, sendDailyPlantReminders, isPushConfigured };

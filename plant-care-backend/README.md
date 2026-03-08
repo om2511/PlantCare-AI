@@ -51,6 +51,9 @@ GROQ_API_KEY=your_groq_api_key
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+VAPID_EMAIL=mailto:your_email@example.com
+VAPID_PUBLIC_KEY=your_vapid_public_key
+VAPID_PRIVATE_KEY=your_vapid_private_key
 NODE_ENV=development
 ```
 

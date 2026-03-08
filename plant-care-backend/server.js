@@ -68,10 +68,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Daily plant reminders — 8:00 AM IST = 2:30 AM UTC
-cron.schedule('30 2 * * *', () => {
+// Daily plant reminders at 8:00 AM Asia/Kolkata
+cron.schedule('0 8 * * *', () => {
   console.log('⏰ Cron: sending daily plant reminders');
   sendDailyPlantReminders();
+}, {
+  timezone: 'Asia/Kolkata'
 });
 
 // Start server

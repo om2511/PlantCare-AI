@@ -39,8 +39,10 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
-        if (getPermissionStatus() !== 'denied') {
-          subscribeToNotifications().catch(() => {});
+        if (getPermissionStatus() !== 'denied' && localStorage.getItem('notif_careReminders') !== 'false') {
+          subscribeToNotifications().catch((err) => {
+            console.warn('Notification auto-subscribe skipped:', err.message);
+          });
         }
         return { success: true };
       }
@@ -62,8 +64,10 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
-        if (getPermissionStatus() !== 'denied') {
-          subscribeToNotifications().catch(() => {});
+        if (getPermissionStatus() !== 'denied' && localStorage.getItem('notif_careReminders') !== 'false') {
+          subscribeToNotifications().catch((err) => {
+            console.warn('Notification auto-subscribe skipped:', err.message);
+          });
         }
         return { success: true };
       }

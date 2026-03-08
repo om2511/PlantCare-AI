@@ -1,10 +1,17 @@
 const PushSubscription = require('../models/PushSubscription');
-const { sendToUser } = require('../services/notificationService');
+const { sendToUser, isPushConfigured } = require('../services/notificationService');
 
 // @desc    Return VAPID public key (no auth required)
 // @route   GET /api/notifications/vapid-key
 // @access  Public
 const getVapidPublicKey = (req, res) => {
+  if (!isPushConfigured()) {
+    return res.status(503).json({
+      success: false,
+      message: 'Push notifications are not configured on the server'
+    });
+  }
+
   res.json({ success: true, publicKey: process.env.VAPID_PUBLIC_KEY });
 };
 

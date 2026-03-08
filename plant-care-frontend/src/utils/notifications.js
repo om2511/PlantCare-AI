@@ -33,12 +33,34 @@ export const subscribeToNotifications = async () => {
     throw new Error('Push notifications are not supported in this browser');
   }
 
+  if (!('Notification' in window)) {
+    throw new Error('Notification API is not available in this browser');
+  }
+
+  // Request permission from a user action context (for reliability in modern browsers)
+  if (Notification.permission !== 'granted') {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      throw new Error('Notification permission was not granted');
+    }
+  }
+
   // 1. Fetch VAPID public key
   const keyRes = await fetch(`${API_URL}/notifications/vapid-key`);
-  const { publicKey } = await keyRes.json();
+  const keyPayload = await keyRes.json();
+  if (!keyRes.ok || !keyPayload?.publicKey) {
+    throw new Error(keyPayload?.message || 'Failed to fetch VAPID public key');
+  }
+  const { publicKey } = keyPayload;
 
   // 2. Wait for the service worker to be ready
   const registration = await navigator.serviceWorker.ready;
+
+  // If already subscribed, re-use existing subscription
+  const existingSubscription = await registration.pushManager.getSubscription();
+  if (existingSubscription) {
+    return existingSubscription;
+  }
 
   // 3. Subscribe via the Push API (will prompt user for permission if 'default')
   const subscription = await registration.pushManager.subscribe({
@@ -48,7 +70,7 @@ export const subscribeToNotifications = async () => {
 
   // 4. Send subscription to our backend
   const token = localStorage.getItem('token');
-  await fetch(`${API_URL}/notifications/subscribe`, {
+  const saveRes = await fetch(`${API_URL}/notifications/subscribe`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -56,6 +78,10 @@ export const subscribeToNotifications = async () => {
     },
     body: JSON.stringify(subscription.toJSON())
   });
+  if (!saveRes.ok) {
+    const savePayload = await saveRes.json().catch(() => ({}));
+    throw new Error(savePayload?.message || 'Failed to save push subscription');
+  }
 
   console.log('✅ Push subscription saved');
   return subscription;
@@ -74,7 +100,7 @@ export const unsubscribeFromNotifications = async () => {
   await subscription.unsubscribe();
 
   const token = localStorage.getItem('token');
-  await fetch(`${API_URL}/notifications/unsubscribe`, {
+  const response = await fetch(`${API_URL}/notifications/unsubscribe`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
@@ -82,6 +108,10 @@ export const unsubscribeFromNotifications = async () => {
     },
     body: JSON.stringify({ endpoint })
   });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload?.message || 'Failed to unsubscribe from push notifications');
+  }
 
   console.log('✅ Unsubscribed from push notifications');
 };
