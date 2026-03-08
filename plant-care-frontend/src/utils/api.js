@@ -147,7 +147,8 @@ export const adminAPI = {
   getPlants: (limit = 100) => api.get(`/admin/plants?limit=${limit}`),
   getContactMessages: (limit = 100) => api.get(`/admin/contact-messages?limit=${limit}`),
   updateContactMessageStatus: (messageId, status) =>
-    api.patch(`/admin/contact-messages/${messageId}/status`, { status })
+    api.patch(`/admin/contact-messages/${messageId}/status`, { status }),
+  deleteContactMessage: (messageId) => api.delete(`/admin/contact-messages/${messageId}`)
 };
 
 export default api;

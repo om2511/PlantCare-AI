@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusUpdatingId, setStatusUpdatingId] = useState(null);
+  const [messageDeletingId, setMessageDeletingId] = useState(null);
   const [userActionLoadingId, setUserActionLoadingId] = useState(null);
 
   const fetchAdminData = useCallback(async () => {
@@ -54,10 +55,45 @@ const AdminDashboard = () => {
             : item
         )
       );
+      fetchAdminData();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update message status');
     } finally {
       setStatusUpdatingId(null);
+    }
+  };
+
+  const handleDeleteMessage = async (message) => {
+    if (message.status !== 'resolved') {
+      setError('Only resolved messages can be deleted.');
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete resolved message: ${message.subject}?`);
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setMessageDeletingId(message._id);
+      await adminAPI.deleteContactMessage(message._id);
+      setMessages((prev) => prev.filter((item) => item._id !== message._id));
+      setOverview((prev) => {
+        if (!prev?.totals) {
+          return prev;
+        }
+        return {
+          ...prev,
+          totals: {
+            ...prev.totals,
+            contactMessages: Math.max((prev.totals.contactMessages || 0) - 1, 0)
+          }
+        };
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete contact message');
+    } finally {
+      setMessageDeletingId(null);
     }
   };
 
@@ -120,7 +156,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-gray-300">Loading admin dashboard...</p>
@@ -132,14 +168,20 @@ const AdminDashboard = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <header className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-              Manage platform activity, user accounts, plant records, and contact messages.
-            </p>
-          </header>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-8 px-4 transition-colors">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-3xl p-6 sm:p-8 text-white shadow-lg">
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+            </div>
+            <div className="relative">
+              <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
+              <p className="text-white/85 text-sm sm:text-base mt-2">
+                Manage users, platform records, and contact messages from one place.
+              </p>
+            </div>
+          </div>
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-xl p-4">
@@ -147,20 +189,20 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          <section className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          <section className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
             <StatCard label="Users" value={overview?.totals?.users || 0} />
             <StatCard label="Admins" value={overview?.totals?.admins || 0} />
-            <StatCard label="Blocked Users" value={overview?.totals?.blockedUsers || 0} />
+            <StatCard label="Blocked" value={overview?.totals?.blockedUsers || 0} />
             <StatCard label="Plants" value={overview?.totals?.plants || 0} />
             <StatCard label="Care Logs" value={overview?.totals?.careLogs || 0} />
-            <StatCard label="Contact Messages" value={overview?.totals?.contactMessages || 0} />
-            <StatCard label="New Messages" value={overview?.totals?.unreadContactMessages || 0} />
+            <StatCard label="Messages" value={overview?.totals?.contactMessages || 0} />
+            <StatCard label="New" value={overview?.totals?.unreadContactMessages || 0} />
           </section>
 
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Latest Users</h2>
-              <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+              <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700 pr-1">
                 {users.length === 0 && <EmptyText text="No users found." />}
                 {users.map((item) => (
                   <div key={item._id} className="py-3">
@@ -210,7 +252,7 @@ const AdminDashboard = () => {
 
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Latest Plants</h2>
-              <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+              <div className="max-h-80 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700 pr-1">
                 {plants.length === 0 && <EmptyText text="No plants found." />}
                 {plants.map((item) => (
                   <div key={item._id} className="py-3">
@@ -231,7 +273,7 @@ const AdminDashboard = () => {
 
           <section className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contact Messages</h2>
-            <div className="max-h-[28rem] overflow-y-auto space-y-3">
+            <div className="max-h-[30rem] overflow-y-auto space-y-3 pr-1">
               {messages.length === 0 && <EmptyText text="No contact messages found." />}
               {messages.map((item) => (
                 <article
@@ -257,6 +299,18 @@ const AdminDashboard = () => {
                         <option value="in-progress">In Progress</option>
                         <option value="resolved">Resolved</option>
                       </select>
+                      <button
+                        type="button"
+                        disabled={messageDeletingId === item._id || item.status !== 'resolved'}
+                        onClick={() => handleDeleteMessage(item)}
+                        className={`text-xs font-medium rounded-md px-2 py-1.5 transition-colors ${
+                          item.status === 'resolved'
+                            ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300'
+                            : 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                   <p className="text-sm text-gray-700 dark:text-gray-200 mt-3 whitespace-pre-wrap">{item.message}</p>

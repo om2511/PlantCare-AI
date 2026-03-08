@@ -28,3 +28,14 @@ Refine navbar behavior for shared admin+user account with reduced clutter and ex
 - Added small-screen role switch block inside mobile menu for admin sessions with `User` and `Admin` options, matching desktop role switching behavior.
 - Mobile role options highlight current mode.
 - Validation re-run: `node --check plant-care-frontend/src/components/layout/Navbar.js` passed.
+
+## Follow-up Update 2
+- Mobile issue fix: role switch was only discoverable in mobile menu; now the top navbar `Role` control is visible on all screen sizes for admin sessions.
+- This allows direct User/Admin switching on phone without opening menu first.
+- Validation re-run: `node --check plant-care-frontend/src/components/layout/Navbar.js` passed.
+
+## Follow-up Update 3
+- Reverted the last mobile top-bar visibility tweak for Role control as requested.
+- Top-bar Role dropdown is now desktop-only again (`hidden sm:block`).
+- Mobile role switching remains available inside the mobile menu role section.
+- Validation re-run: `node --check plant-care-frontend/src/components/layout/Navbar.js` passed.

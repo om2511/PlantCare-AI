@@ -109,6 +109,7 @@ Server runs on http://localhost:5000
 - `GET /api/admin/plants` - List plants with owners (admin only)
 - `GET /api/admin/contact-messages` - List contact messages (admin only)
 - `PATCH /api/admin/contact-messages/:id/status` - Update message status (`new`, `in-progress`, `resolved`) (admin only)
+- `DELETE /api/admin/contact-messages/:id` - Delete contact message only if status is `resolved` (admin only)
 
 ## Project Structure
 ```

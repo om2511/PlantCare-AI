@@ -5,6 +5,7 @@ const {
   getPlants,
   getAdminContactMessages,
   updateContactMessageStatus,
+  deleteContactMessage,
   updateUserBlockStatus,
   deleteUserAsAdmin
 } = require('../controllers/adminController');
@@ -21,5 +22,6 @@ router.delete('/users/:id', deleteUserAsAdmin);
 router.get('/plants', getPlants);
 router.get('/contact-messages', getAdminContactMessages);
 router.patch('/contact-messages/:id/status', updateContactMessageStatus);
+router.delete('/contact-messages/:id', deleteContactMessage);
 
 module.exports = router;

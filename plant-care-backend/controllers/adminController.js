@@ -291,12 +291,48 @@ const updateContactMessageStatus = async (req, res) => {
   }
 };
 
+// @desc    Delete contact message (resolved only)
+// @route   DELETE /api/admin/contact-messages/:id
+// @access  Private (admin)
+const deleteContactMessage = async (req, res) => {
+  try {
+    const message = await ContactMessage.findById(req.params.id);
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact message not found'
+      });
+    }
+
+    if (message.status !== 'resolved') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only resolved messages can be deleted'
+      });
+    }
+
+    await ContactMessage.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Contact message deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete contact message error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete contact message'
+    });
+  }
+};
+
 module.exports = {
   getAdminOverview,
   getUsers,
   getPlants,
   getAdminContactMessages,
   updateContactMessageStatus,
+  deleteContactMessage,
   updateUserBlockStatus,
   deleteUserAsAdmin
 };
