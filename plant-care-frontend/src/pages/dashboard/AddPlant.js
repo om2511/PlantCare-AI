@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { plantAPI, plantDataAPI } from '../../utils/api';
+import { plantAPI } from '../../utils/api';
 import Layout from '../../components/layout/Layout';
 
 const AddPlant = () => {
-  const [step, setStep] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [selectedPlant, setSelectedPlant] = useState(null);
-
   const [formData, setFormData] = useState({
     nickname: '',
     species: '',
@@ -42,47 +36,6 @@ const AddPlant = () => {
     { value: 'terrace', label: 'Terrace', icon: '🏢', description: 'Rooftop space' },
     { value: 'garden', label: 'Garden', icon: '🌳', description: 'Outdoor garden' },
   ];
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    try {
-      setSearching(true);
-      setError('');
-
-      const response = await plantDataAPI.searchPlants(searchQuery);
-
-      if (response.data.success) {
-        setSearchResults(response.data.data);
-        if (response.data.data.length === 0) {
-          setError('No plants found. Try a different search term or add manually.');
-        }
-      }
-
-      setSearching(false);
-    } catch (err) {
-      setError('Failed to search plants. Please try again.');
-      setSearching(false);
-    }
-  };
-
-  const handleSelectPlant = (plant) => {
-    setSelectedPlant(plant);
-    setFormData({
-      ...formData,
-      species: plant.name,
-      perenualId: plant.id,
-      category: plant.type || 'other',
-      nickname: plant.name
-    });
-    setStep(2);
-  };
-
-  const handleSkipSearch = () => {
-    setSelectedPlant(null);
-    setStep(2);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -143,47 +96,6 @@ const AddPlant = () => {
           <p className="text-gray-600 dark:text-gray-400 mt-2">Let's add a new member to your garden family</p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center">
-            <div className="flex items-center">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full font-bold text-lg transition-all duration-300 ${
-                step >= 1
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                  : 'bg-gray-200 text-gray-500'
-              }`}>
-                {step > 1 ? (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : '1'}
-              </div>
-              <div className="ml-3 hidden sm:block">
-                <p className={`font-semibold ${step >= 1 ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>Find Plant</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Search our database</p>
-              </div>
-            </div>
-
-            <div className={`w-16 sm:w-24 h-1 mx-4 rounded-full transition-all duration-500 ${
-              step >= 2 ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gray-200'
-            }`}></div>
-
-            <div className="flex items-center">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full font-bold text-lg transition-all duration-300 ${
-                step >= 2
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
-                  : 'bg-gray-200 text-gray-500'
-              }`}>
-                2
-              </div>
-              <div className="ml-3 hidden sm:block">
-                <p className={`font-semibold ${step >= 2 ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-gray-500'}`}>Plant Details</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Add information</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Error Alert */}
         {error && (
           <div className="mb-6 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 rounded-xl animate-fade-in">
@@ -198,165 +110,7 @@ const AddPlant = () => {
           </div>
         )}
 
-        {/* Step 1: Search */}
-        {step === 1 && (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
-            {/* Search Header */}
-            <div className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 p-6 sm:p-8 text-white">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Find Your Plant</h2>
-                  <p className="text-white/80">Search our database for AI-powered care recommendations</p>
-                </div>
-              </div>
-
-              <form onSubmit={handleSearch} className="flex gap-3">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by name (e.g., Tomato, Tulsi, Rose...)"
-                    className="w-full px-5 py-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={searching}
-                  className="px-6 py-4 bg-white text-green-600 rounded-xl font-bold hover:bg-green-50 transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg"
-                >
-                  {searching ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span className="hidden sm:inline">Searching...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                      <span className="hidden sm:inline">Search</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-
-            {/* Search Results */}
-            <div className="p-6 sm:p-8">
-              {searchResults.length > 0 ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                      <span className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm">
-                        {searchResults.length}
-                      </span>
-                      Plants Found
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2">
-                    {searchResults.map((plant) => (
-                      <button
-                        key={plant.id}
-                        onClick={() => handleSelectPlant(plant)}
-                        className="group text-left p-5 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-2xl hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform">
-                            🌱
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-bold text-gray-800 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors truncate">{plant.name}</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 italic truncate">{plant.scientificName}</p>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              <span className="inline-flex items-center gap-1 text-xs bg-white dark:bg-gray-600 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-500 text-gray-700 dark:text-gray-300">
-                                <span>🏷️</span> {plant.type}
-                              </span>
-                              <span className="inline-flex items-center gap-1 text-xs bg-white dark:bg-gray-600 px-2 py-1 rounded-full border border-gray-200 dark:border-gray-500 text-gray-700 dark:text-gray-300">
-                                <span>📊</span> {plant.difficulty}
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 flex items-center gap-1">
-                              <span>☀️</span> {plant.sunlight}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-4xl">🔍</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Search for Plants</h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                    Enter the name of your plant to find it in our database and get personalized AI care recommendations.
-                  </p>
-                </div>
-              )}
-
-              {/* Skip Search */}
-              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
-                <p className="text-gray-600 dark:text-gray-400 mb-3">Can't find your plant in our database?</p>
-                <button
-                  onClick={handleSkipSearch}
-                  className="inline-flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold hover:text-green-700 dark:hover:text-green-300 transition-colors group"
-                >
-                  <span>Add plant manually</span>
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Plant Details */}
-        {step === 2 && (
-          <div className="space-y-6">
-            {/* Selected Plant Info */}
-            {selectedPlant && (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-2 border-green-200 dark:border-green-700 rounded-2xl p-5 animate-fade-in">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
-                      🌱
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-800 dark:text-white text-lg">{selectedPlant.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedPlant.scientificName}</p>
-                      {selectedPlant.hindiName && (
-                        <p className="text-sm text-green-600">{selectedPlant.hindiName}</p>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setStep(1)}
-                    className="px-4 py-2 text-green-600 hover:bg-green-100 rounded-xl font-medium transition-colors"
-                  >
-                    Change
-                  </button>
-                </div>
-                <div className="mt-4 flex items-center gap-2 text-sm text-green-700 bg-green-100 rounded-xl px-4 py-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  <span>AI will generate personalized care schedule based on your conditions</span>
-                </div>
-              </div>
-            )}
+        <div className="space-y-6">
 
             {/* Details Form */}
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
@@ -588,7 +342,6 @@ const AddPlant = () => {
               </div>
             </div>
           </div>
-        )}
       </div>
       </div>
     </Layout>
