@@ -60,17 +60,6 @@ const Contact = () => {
           <section>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Send a Message</h2>
 
-            {submitted && (
-              <div className="mb-4 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-green-700">
-                Message submitted successfully.
-              </div>
-            )}
-            {submitError && (
-              <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700">
-                {submitError}
-              </div>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
@@ -143,6 +132,17 @@ const Contact = () => {
               >
                 {submitting ? 'Submitting...' : 'Submit'}
               </button>
+
+              {submitted && (
+                <div className="rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-green-700">
+                  Message submitted successfully.
+                </div>
+              )}
+              {submitError && (
+                <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700">
+                  {submitError}
+                </div>
+              )}
             </form>
           </section>
 

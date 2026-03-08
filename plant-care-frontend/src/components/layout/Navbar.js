@@ -302,16 +302,6 @@ const Navbar = () => {
                 <span>Settings</span>
               </Link>
 
-              {infoLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <span className="text-xl">ℹ️</span>
-                  <span>{link.label}</span>
-                </Link>
-              ))}
             </div>
 
             {/* Mobile Profile Section */}

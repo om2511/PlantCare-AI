@@ -57,3 +57,11 @@ Completed. Requires deploy + runtime verification.
 ## How to Access Contact Responses
 - Submissions are stored in MongoDB `ContactMessage` collection.
 - You can fetch them via `GET /api/contact/messages` using a logged-in account whose email equals `ADMIN_EMAIL` env var.
+
+## UI Adjustment (2026-03-08 07:19:48 UTC)
+- Moved contact form success/error feedback from top of form to directly below submit button in `plant-care-frontend/src/pages/Contact.js`.
+- Verified JavaScript syntax after change.
+
+## Mobile Nav Dedup (2026-03-08 07:36:00 UTC)
+- Removed duplicated About/Contact/Privacy/Terms links from the small-screen menu list in `plant-care-frontend/src/components/layout/Navbar.js`.
+- Kept these links in the profile dropdown menu so they appear in only one location on small devices.
