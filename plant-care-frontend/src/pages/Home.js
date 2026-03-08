@@ -15,23 +15,30 @@ const Home = () => {
   }, [isAuthenticated, loading, navigate]);
 
   useEffect(() => {
+    if (loading) return;
+
+    const animatedSections = document.querySelectorAll('[data-animate]');
+    if (!animatedSections.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setIsVisible((prev) => ({ ...prev, [entry.target.id]: true }));
+            const key = entry.target.id;
+            if (!key) return;
+            setIsVisible((prev) => ({ ...prev, [key]: true }));
           }
         });
       },
       { threshold: 0.1 }
     );
 
-    document.querySelectorAll('[data-animate]').forEach((el) => {
+    animatedSections.forEach((el) => {
       observer.observe(el);
     });
 
     return () => observer.disconnect();
-  }, []);
+  }, [loading]);
 
   // Show loading state while checking authentication
   if (loading) {
