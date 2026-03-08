@@ -10,13 +10,23 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const profileRef = useRef(null);
+  const moreRef = useRef(null);
+  const roleRef = useRef(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setProfileDropdownOpen(false);
+      }
+      if (moreRef.current && !moreRef.current.contains(event.target)) {
+        setMoreDropdownOpen(false);
+      }
+      if (roleRef.current && !roleRef.current.contains(event.target)) {
+        setRoleDropdownOpen(false);
       }
     };
 
@@ -28,6 +38,8 @@ const Navbar = () => {
   useEffect(() => {
     setMobileMenuOpen(false);
     setProfileDropdownOpen(false);
+    setMoreDropdownOpen(false);
+    setRoleDropdownOpen(false);
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -37,23 +49,25 @@ const Navbar = () => {
 
   const isAdmin = user?.role === 'admin';
   const isOnAdminRoute = location.pathname.startsWith('/admin');
-  const userNavLinks = [
+  const primaryUserNavLinks = [
     { path: '/dashboard', label: 'My Plants', icon: '🌿' },
     { path: '/care-reminders', label: 'Reminders', icon: '🔔' },
+    { path: '/add-plant', label: 'Add Plant', icon: '➕' },
+  ];
+  const moreUserNavLinks = [
     { path: '/analytics', label: 'Analytics', icon: '📊' },
     { path: '/disease-detection', label: 'Disease', icon: '🔬' },
     { path: '/water-quality', label: 'Water', icon: '💧' },
     { path: '/companion-planting', label: 'Companion', icon: '🤝' },
     { path: '/suggestions', label: 'Suggestions', icon: '✨' },
   ];
-  const navLinks = !isAdmin
-    ? userNavLinks
-    : isOnAdminRoute
-      ? [
-          { path: '/admin', label: 'Admin', icon: '🛠️' },
-          { path: '/dashboard', label: 'User View', icon: '🌿' }
-        ]
-      : [{ path: '/admin', label: 'Admin', icon: '🛠️' }, ...userNavLinks];
+  const navLinks = isOnAdminRoute
+    ? [{ path: '/admin', label: 'Admin', icon: '🛠️' }]
+    : primaryUserNavLinks;
+  const mobileNavLinks = isOnAdminRoute
+    ? [{ path: '/admin', label: 'Admin', icon: '🛠️' }]
+    : [...primaryUserNavLinks, ...moreUserNavLinks];
+  const hasMoreNav = !isOnAdminRoute;
   const infoLinks = [
     { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
@@ -62,6 +76,7 @@ const Navbar = () => {
   ];
 
   const isActive = (path) => location.pathname === path;
+  const hasActiveMoreNav = moreUserNavLinks.some((link) => isActive(link.path));
 
   // Get user initials for avatar
   const getInitials = (name) => {
@@ -102,6 +117,41 @@ const Navbar = () => {
                 <span>{link.label}</span>
               </Link>
             ))}
+            {hasMoreNav && (
+              <div className="relative" ref={moreRef}>
+                <button
+                  onClick={() => setMoreDropdownOpen((prev) => !prev)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1.5 ${
+                    hasActiveMoreNav || moreDropdownOpen
+                      ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  <span>More</span>
+                  <svg className={`w-4 h-4 transition-transform ${moreDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {moreDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fadeIn">
+                    {moreUserNavLinks.map((link) => (
+                      <Link
+                        key={link.path}
+                        to={link.path}
+                        className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                          isActive(link.path)
+                            ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        <span>{link.icon}</span>
+                        <span>{link.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Section - Theme Toggle, Profile & Mobile Menu */}
@@ -124,13 +174,41 @@ const Navbar = () => {
             </button>
 
             {isAdmin && (
-              <Link
-                to={isOnAdminRoute ? '/dashboard' : '/admin'}
-                className="hidden sm:inline-flex items-center px-3 py-2 rounded-lg text-xs font-semibold bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50 transition-colors"
-                title={isOnAdminRoute ? 'Switch to user mode' : 'Switch to admin mode'}
-              >
-                {isOnAdminRoute ? 'User Mode' : 'Admin Mode'}
-              </Link>
+              <div className="relative hidden sm:block" ref={roleRef}>
+                <button
+                  onClick={() => setRoleDropdownOpen((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-green-50 text-green-700 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50 transition-colors"
+                >
+                  <span>Role</span>
+                  <svg className={`w-4 h-4 transition-transform ${roleDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {roleDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-36 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-2 z-50 animate-fadeIn">
+                    <Link
+                      to="/dashboard"
+                      className={`block px-4 py-2.5 text-sm transition-colors ${
+                        !isOnAdminRoute
+                          ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      User
+                    </Link>
+                    <Link
+                      to="/admin"
+                      className={`block px-4 py-2.5 text-sm transition-colors ${
+                        isOnAdminRoute
+                          ? 'text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      Admin
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Notification Bell - Links to Care Reminders */}
@@ -316,7 +394,37 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-gray-100 dark:border-gray-700 py-3 animate-fadeIn">
             <div className="space-y-1">
-              {navLinks.map((link) => (
+              {isAdmin && (
+                <>
+                  <p className="px-4 pt-1 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    Role
+                  </p>
+                  <Link
+                    to="/dashboard"
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      !isOnAdminRoute
+                        ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <span>👤</span>
+                    <span>User</span>
+                  </Link>
+                  <Link
+                    to="/admin"
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isOnAdminRoute
+                        ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <span>🛠️</span>
+                    <span>Admin</span>
+                  </Link>
+                  <div className="my-2 border-t border-gray-100 dark:border-gray-700"></div>
+                </>
+              )}
+              {mobileNavLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
@@ -335,27 +443,6 @@ const Navbar = () => {
                   )}
                 </Link>
               ))}
-
-              {/* Additional Mobile Links */}
-              {(!isAdmin || !isOnAdminRoute) && (
-                <>
-                  <Link
-                    to="/add-plant"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <span className="text-xl">➕</span>
-                    <span>Add Plant</span>
-                  </Link>
-
-                  <Link
-                    to="/settings"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <span className="text-xl">⚙️</span>
-                    <span>Settings</span>
-                  </Link>
-                </>
-              )}
 
             </div>
 

@@ -1,26 +1,30 @@
 # Admin Navbar Trim Log (2026-03-08)
 
 ## Objective
-Reduce admin navbar items so only required admin navigation is shown while preserving access to user features for shared admin+user accounts.
+Refine navbar behavior for shared admin+user account with reduced clutter and explicit role switching.
 
-## Plan
-1. Detect admin user state and admin route in Navbar.
-2. Keep compact admin nav on `/admin` route.
-3. Provide explicit switch back to user dashboard for admin users.
-4. Restore full user links for admin when outside `/admin`.
-5. Validate syntax.
+## Requested Behavior
+- On admin page, remove `User View` nav link from navbar.
+- In user mode, remove `Admin` nav link from navbar.
+- Reduce user-mode nav clutter by introducing a `More` dropdown for non-primary links on large screens.
+- Replace switch button with a `Role` dropdown having `User` and `Admin` options.
 
-## Progress
-Completed.
-
-## Changes Applied
-- Added `isOnAdminRoute` logic in `plant-care-frontend/src/components/layout/Navbar.js`.
-- Admin nav behavior is now route-aware:
-  - On `/admin`: show only `Admin` and `User View` links.
-  - On non-admin routes: admin sees full user nav links plus `Admin` link.
-- Added `User Dashboard` entry in admin profile dropdown for fast switching.
-- Reminder bell and mobile extra shortcuts are hidden only on `/admin` view, not everywhere for admin.
-- Non-admin users keep previous navigation behavior.
+## Applied Changes
+- Updated `plant-care-frontend/src/components/layout/Navbar.js`.
+- Route-aware primary nav:
+  - On `/admin`: main nav shows only `Admin`.
+  - On non-admin routes: main nav shows primary user links only and does not show `Admin`.
+- Added `More` dropdown on large screens for non-primary user links (`Analytics`, `Disease`, `Water`, `Companion`, `Suggestions`).
+- Added `Role` dropdown (desktop) for admin sessions with options:
+  - `User` -> `/dashboard`
+  - `Admin` -> `/admin`
+- Mobile menu now uses combined user nav set directly (no duplicate add-plant entry).
+- Kept profile menu links so admin can still access both contexts from profile if needed.
 
 ## Validation
 - `node --check plant-care-frontend/src/components/layout/Navbar.js` passed.
+
+## Follow-up Update
+- Added small-screen role switch block inside mobile menu for admin sessions with `User` and `Admin` options, matching desktop role switching behavior.
+- Mobile role options highlight current mode.
+- Validation re-run: `node --check plant-care-frontend/src/components/layout/Navbar.js` passed.
