@@ -131,4 +131,9 @@ export const diseaseAPI = {
   getPlantImages: (plantId) => api.get(`/disease/plant/${plantId}/images`)
 };
 
+// Contact API calls
+export const contactAPI = {
+  submitMessage: (payload) => api.post('/contact', payload)
+};
+
 export default api;

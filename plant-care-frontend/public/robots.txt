@@ -8,6 +8,12 @@ Disallow: /profile
 Disallow: /settings
 Disallow: /login
 Disallow: /register
+Disallow: /suggestions
+Disallow: /disease-detection
+Disallow: /water-quality
+Disallow: /care-reminders
+Disallow: /analytics
+Disallow: /companion-planting
 
 # Sitemap
 Sitemap: https://plant-care-ai-nine.vercel.app/sitemap.xml

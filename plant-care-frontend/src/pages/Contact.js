@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import PublicPageLayout from '../components/layout/PublicPageLayout';
+import { contactAPI } from '../utils/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ const Contact = () => {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,11 +20,23 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 2500);
+    setSubmitError('');
+    setSubmitting(true);
+
+    contactAPI.submitMessage(formData)
+      .then((response) => {
+        if (!response?.data?.success) {
+          throw new Error('Failed to submit message');
+        }
+        setSubmitted(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      })
+      .catch((error) => {
+        setSubmitError(error.response?.data?.message || error.message || 'Failed to submit message');
+      })
+      .finally(() => {
+        setSubmitting(false);
+      });
   };
 
   return (
@@ -47,7 +62,12 @@ const Contact = () => {
 
             {submitted && (
               <div className="mb-4 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-green-700">
-                Message captured successfully.
+                Message submitted successfully.
+              </div>
+            )}
+            {submitError && (
+              <div className="mb-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700">
+                {submitError}
               </div>
             )}
 
@@ -60,6 +80,7 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
+                  maxLength={120}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
                   placeholder="Your name"
                 />
@@ -73,6 +94,7 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  maxLength={180}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
                   placeholder="you@example.com"
                 />
@@ -85,6 +107,7 @@ const Contact = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
+                  disabled={submitting}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none"
                 >
                   <option value="">Choose a topic</option>
@@ -103,6 +126,7 @@ const Contact = () => {
                   onChange={handleChange}
                   required
                   rows="5"
+                  maxLength={3000}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none resize-none"
                   placeholder="Describe your question or issue."
                 />
@@ -110,9 +134,14 @@ const Contact = () => {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-colors"
+                disabled={submitting}
+                className={`w-full py-3 rounded-xl font-semibold transition-colors text-white ${
+                  submitting
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'
+                }`}
               >
-                Submit
+                {submitting ? 'Submitting...' : 'Submit'}
               </button>
             </form>
           </section>

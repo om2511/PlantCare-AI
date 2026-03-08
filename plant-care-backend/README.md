@@ -97,6 +97,9 @@ Server runs on http://localhost:5000
 ### Water Quality
 - `GET /api/water-quality/:plantId/:waterSource` - Get water advice
 
+### Contact
+- `POST /api/contact` - Submit public contact/support message
+
 ## Project Structure
 ```
 backend/

@@ -7,3 +7,5 @@
 2026-03-08 05:11:28 UTC - In pages that conditionally render a loading screen, DOM-query/observer effects with empty dependency arrays can run before target elements exist and never recover. Effects that observe rendered content must be tied to loading completion or the rendered-content lifecycle.
 
 2026-03-08 05:49:34 UTC - Public legal/SEO pages should avoid unverifiable claims in metadata and body copy (e.g., fabricated ratings, hard guarantees, placeholder jurisdiction text). Using a shared layout component for legal/public pages prevents UI drift and duplicate markup bugs.
+
+2026-03-08 06:10:15 UTC - Public contact forms should not present success without persistence. If no backend endpoint exists, implement one or explicitly label form as non-submitting; silent simulation creates false operational assumptions.

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
@@ -53,7 +54,17 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+    <>
+      <Helmet>
+        <title>PlantCare AI - Smart Plant Care App</title>
+        <meta
+          name="description"
+          content="Manage plant care schedules, reminders, and AI-assisted guidance with PlantCare AI."
+        />
+        <link rel="canonical" href="https://plant-care-ai-nine.vercel.app/" />
+        <meta name="robots" content="index, follow" />
+      </Helmet>
+      <div className="min-h-screen bg-white overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
         {/* Animated Background Elements */}
@@ -545,7 +556,8 @@ const Home = () => {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 };
 
