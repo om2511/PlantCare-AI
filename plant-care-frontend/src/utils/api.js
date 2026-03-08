@@ -141,6 +141,9 @@ export const contactAPI = {
 export const adminAPI = {
   getOverview: () => api.get('/admin/overview'),
   getUsers: (limit = 100) => api.get(`/admin/users?limit=${limit}`),
+  updateUserBlockStatus: (userId, isBlocked, reason = '') =>
+    api.patch(`/admin/users/${userId}/block-status`, { isBlocked, reason }),
+  deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
   getPlants: (limit = 100) => api.get(`/admin/plants?limit=${limit}`),
   getContactMessages: (limit = 100) => api.get(`/admin/contact-messages?limit=${limit}`),
   updateContactMessageStatus: (messageId, status) =>

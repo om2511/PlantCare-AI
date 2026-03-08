@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [statusUpdatingId, setStatusUpdatingId] = useState(null);
+  const [userActionLoadingId, setUserActionLoadingId] = useState(null);
 
   const fetchAdminData = useCallback(async () => {
     try {
@@ -60,6 +61,62 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleToggleBlockUser = async (targetUser) => {
+    const nextBlockedState = !targetUser.isBlocked;
+    const actionLabel = nextBlockedState ? 'block' : 'unblock';
+    const confirmed = window.confirm(`Are you sure you want to ${actionLabel} ${targetUser.email}?`);
+    if (!confirmed) {
+      return;
+    }
+
+    let reason = '';
+    if (nextBlockedState) {
+      reason = window.prompt('Optional block reason (shown only in admin records):', '') || '';
+    }
+
+    try {
+      setUserActionLoadingId(targetUser._id);
+      await adminAPI.updateUserBlockStatus(targetUser._id, nextBlockedState, reason);
+      setUsers((prev) =>
+        prev.map((item) =>
+          item._id === targetUser._id
+            ? {
+                ...item,
+                isBlocked: nextBlockedState,
+                blockedAt: nextBlockedState ? new Date().toISOString() : null,
+                blockReason: nextBlockedState ? reason : ''
+              }
+            : item
+        )
+      );
+      fetchAdminData();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update user block status');
+    } finally {
+      setUserActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteUser = async (targetUser) => {
+    const confirmed = window.confirm(
+      `Delete user ${targetUser.email}? This will permanently remove their plants, care logs, and push subscriptions.`
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setUserActionLoadingId(targetUser._id);
+      await adminAPI.deleteUser(targetUser._id);
+      setUsers((prev) => prev.filter((item) => item._id !== targetUser._id));
+      fetchAdminData();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete user');
+    } finally {
+      setUserActionLoadingId(null);
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -93,6 +150,7 @@ const AdminDashboard = () => {
           <section className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <StatCard label="Users" value={overview?.totals?.users || 0} />
             <StatCard label="Admins" value={overview?.totals?.admins || 0} />
+            <StatCard label="Blocked Users" value={overview?.totals?.blockedUsers || 0} />
             <StatCard label="Plants" value={overview?.totals?.plants || 0} />
             <StatCard label="Care Logs" value={overview?.totals?.careLogs || 0} />
             <StatCard label="Contact Messages" value={overview?.totals?.contactMessages || 0} />
@@ -106,11 +164,45 @@ const AdminDashboard = () => {
                 {users.length === 0 && <EmptyText text="No users found." />}
                 {users.map((item) => (
                   <div key={item._id} className="py-3">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">{item.email}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      Role: <span className="font-medium">{item.role || 'user'}</span>
-                    </p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-300">{item.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Role: <span className="font-medium">{item.role || 'user'}</span>
+                        </p>
+                        {item.isBlocked && (
+                          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                            Blocked {item.blockReason ? `(${item.blockReason})` : ''}
+                          </p>
+                        )}
+                      </div>
+
+                      {item.role !== 'admin' && (
+                        <div className="flex flex-col gap-2 w-[106px]">
+                          <button
+                            type="button"
+                            disabled={userActionLoadingId === item._id}
+                            onClick={() => handleToggleBlockUser(item)}
+                            className={`text-xs font-medium rounded-md px-2 py-1.5 transition-colors ${
+                              item.isBlocked
+                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
+                            }`}
+                          >
+                            {item.isBlocked ? 'Unblock' : 'Block'}
+                          </button>
+                          <button
+                            type="button"
+                            disabled={userActionLoadingId === item._id}
+                            onClick={() => handleDeleteUser(item)}
+                            className="text-xs font-medium rounded-md px-2 py-1.5 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

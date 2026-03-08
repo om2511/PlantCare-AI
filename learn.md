@@ -15,3 +15,5 @@
 2026-03-08 08:03:47 UTC - For long audit/history lists inside dense detail pages, internal scroll containers with explicit max heights preserve information density while preventing vertical page bloat and interaction fatigue.
 
 2026-03-08: Centralizing admin authorization with role-based middleware is safer than per-controller email checks because it prevents fragmented access control logic and keeps all admin endpoints consistently protected.
+
+2026-03-08: For shared admin+user accounts, role-based UI should be route-aware instead of globally restrictive; otherwise admin access unintentionally removes normal user workflows.

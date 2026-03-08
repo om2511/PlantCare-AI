@@ -31,6 +31,13 @@ const protect = async (req, res, next) => {
         });
       }
 
+      if (req.user.isBlocked) {
+        return res.status(403).json({
+          success: false,
+          message: 'Account is blocked'
+        });
+      }
+
       const expectedRole = resolveRoleForEmail(req.user.email);
       if (req.user.role !== expectedRole) {
         req.user.role = expectedRole;

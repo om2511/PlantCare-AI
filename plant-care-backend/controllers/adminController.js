@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Plant = require('../models/Plant');
 const CareLog = require('../models/CareLog');
 const ContactMessage = require('../models/ContactMessage');
+const PushSubscription = require('../models/PushSubscription');
 
 const parseLimit = (rawLimit, fallback, hardMax) => {
   const parsed = Number.parseInt(rawLimit, 10);
@@ -19,6 +20,7 @@ const getAdminOverview = async (req, res) => {
     const [
       totalUsers,
       totalAdmins,
+      totalBlockedUsers,
       totalPlants,
       totalCareLogs,
       totalMessages,
@@ -28,6 +30,7 @@ const getAdminOverview = async (req, res) => {
     ] = await Promise.all([
       User.countDocuments(),
       User.countDocuments({ role: 'admin' }),
+      User.countDocuments({ isBlocked: true }),
       Plant.countDocuments(),
       CareLog.countDocuments(),
       ContactMessage.countDocuments(),
@@ -46,6 +49,7 @@ const getAdminOverview = async (req, res) => {
         totals: {
           users: totalUsers,
           admins: totalAdmins,
+          blockedUsers: totalBlockedUsers,
           plants: totalPlants,
           careLogs: totalCareLogs,
           contactMessages: totalMessages,
@@ -60,6 +64,110 @@ const getAdminOverview = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch admin overview'
+    });
+  }
+};
+
+// @desc    Update user blocked status
+// @route   PATCH /api/admin/users/:id/block-status
+// @access  Private (admin)
+const updateUserBlockStatus = async (req, res) => {
+  try {
+    const { isBlocked, reason } = req.body;
+    if (typeof isBlocked !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'isBlocked must be boolean'
+      });
+    }
+
+    const targetUser = await User.findById(req.params.id);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (String(targetUser._id) === String(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot block or unblock your own account'
+      });
+    }
+
+    if (targetUser.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin accounts cannot be blocked from this endpoint'
+      });
+    }
+
+    targetUser.isBlocked = isBlocked;
+    targetUser.blockedAt = isBlocked ? new Date() : null;
+    targetUser.blockReason = isBlocked ? String(reason || '').trim().slice(0, 300) : '';
+    await targetUser.save();
+
+    res.status(200).json({
+      success: true,
+      message: isBlocked ? 'User blocked successfully' : 'User unblocked successfully',
+      data: {
+        _id: targetUser._id,
+        isBlocked: targetUser.isBlocked,
+        blockedAt: targetUser.blockedAt,
+        blockReason: targetUser.blockReason
+      }
+    });
+  } catch (error) {
+    console.error('Update user block status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update user status'
+    });
+  }
+};
+
+// @desc    Delete user account as admin
+// @route   DELETE /api/admin/users/:id
+// @access  Private (admin)
+const deleteUserAsAdmin = async (req, res) => {
+  try {
+    const targetUser = await User.findById(req.params.id).lean();
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (String(targetUser._id) === String(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account from admin endpoint'
+      });
+    }
+
+    if (targetUser.role === 'admin') {
+      return res.status(400).json({
+        success: false,
+        message: 'Admin accounts cannot be deleted from this endpoint'
+      });
+    }
+
+    await CareLog.deleteMany({ userId: targetUser._id });
+    await Plant.deleteMany({ userId: targetUser._id });
+    await PushSubscription.deleteMany({ userId: targetUser._id });
+    await User.findByIdAndDelete(targetUser._id);
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user as admin error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete user'
     });
   }
 };
@@ -188,5 +296,7 @@ module.exports = {
   getUsers,
   getPlants,
   getAdminContactMessages,
-  updateContactMessageStatus
+  updateContactMessageStatus,
+  updateUserBlockStatus,
+  deleteUserAsAdmin
 };

@@ -104,6 +104,8 @@ Server runs on http://localhost:5000
 ### Admin
 - `GET /api/admin/overview` - Platform overview metrics (admin only)
 - `GET /api/admin/users` - List users (admin only)
+- `PATCH /api/admin/users/:id/block-status` - Block/unblock non-admin user (admin only)
+- `DELETE /api/admin/users/:id` - Delete non-admin user and related data (admin only)
 - `GET /api/admin/plants` - List plants with owners (admin only)
 - `GET /api/admin/contact-messages` - List contact messages (admin only)
 - `PATCH /api/admin/contact-messages/:id/status` - Update message status (`new`, `in-progress`, `resolved`) (admin only)
