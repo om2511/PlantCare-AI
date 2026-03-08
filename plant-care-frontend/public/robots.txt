@@ -6,6 +6,8 @@ Disallow: /add-plant
 Disallow: /plants/
 Disallow: /profile
 Disallow: /settings
+Disallow: /login
+Disallow: /register
 
 # Sitemap
 Sitemap: https://plant-care-ai-nine.vercel.app/sitemap.xml

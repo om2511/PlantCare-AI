@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
@@ -95,7 +96,13 @@ const Register = () => {
   ];
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 relative overflow-hidden">
+    <>
+      <Helmet>
+        <title>Register - PlantCare AI</title>
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://plant-care-ai-nine.vercel.app/register" />
+      </Helmet>
+      <div className="min-h-screen flex bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 relative overflow-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-gradient-to-br from-green-300 to-emerald-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -532,7 +539,8 @@ const Register = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
