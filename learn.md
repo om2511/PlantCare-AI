@@ -5,3 +5,5 @@
 2026-03-08 04:56:13 UTC - During notification patching, I accidentally introduced a duplicate `/notifications/subscribe` fetch call and removed it immediately. For network-flow edits, always re-open the edited function and verify exactly one API call per intended side effect before validation.
 
 2026-03-08 05:11:28 UTC - In pages that conditionally render a loading screen, DOM-query/observer effects with empty dependency arrays can run before target elements exist and never recover. Effects that observe rendered content must be tied to loading completion or the rendered-content lifecycle.
+
+2026-03-08 05:49:34 UTC - Public legal/SEO pages should avoid unverifiable claims in metadata and body copy (e.g., fabricated ratings, hard guarantees, placeholder jurisdiction text). Using a shared layout component for legal/public pages prevents UI drift and duplicate markup bugs.
