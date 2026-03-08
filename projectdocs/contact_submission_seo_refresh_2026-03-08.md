@@ -65,3 +65,10 @@ Completed. Requires deploy + runtime verification.
 ## Mobile Nav Dedup (2026-03-08 07:36:00 UTC)
 - Removed duplicated About/Contact/Privacy/Terms links from the small-screen menu list in `plant-care-frontend/src/components/layout/Navbar.js`.
 - Kept these links in the profile dropdown menu so they appear in only one location on small devices.
+
+## Mobile Menu Scope Update (2026-03-08 07:41:40 UTC)
+- Removed mobile menu bottom section for profile, light/dark theme toggle, and logout from `plant-care-frontend/src/components/layout/Navbar.js` as requested.
+- Verified route coverage and added missing protected routes to menu links:
+  - `/water-quality`
+  - `/companion-planting`
+- Existing menu already included `/dashboard`, `/care-reminders`, `/analytics`, `/disease-detection`, `/suggestions`, `/add-plant`, and `/settings`.

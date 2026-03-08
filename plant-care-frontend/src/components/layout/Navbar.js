@@ -40,6 +40,8 @@ const Navbar = () => {
     { path: '/care-reminders', label: 'Reminders', icon: '🔔' },
     { path: '/analytics', label: 'Analytics', icon: '📊' },
     { path: '/disease-detection', label: 'Disease', icon: '🔬' },
+    { path: '/water-quality', label: 'Water', icon: '💧' },
+    { path: '/companion-planting', label: 'Companion', icon: '🤝' },
     { path: '/suggestions', label: 'Suggestions', icon: '✨' },
   ];
   const infoLinks = [
@@ -304,43 +306,6 @@ const Navbar = () => {
 
             </div>
 
-            {/* Mobile Profile Section */}
-            <div className="border-t border-gray-100 dark:border-gray-700 mt-3 pt-3">
-              <Link
-                to="/profile"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold shadow-md">
-                  {getInitials(user?.name)}
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-800 dark:text-white">{user?.name}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">View & edit profile</p>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-
-              {/* Dark Mode Toggle for Mobile */}
-              <button
-                onClick={toggleDarkMode}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full"
-              >
-                <span className="text-xl">{darkMode ? '☀️' : '🌙'}</span>
-                <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full mt-1"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span className="font-medium">Logout</span>
-              </button>
-            </div>
           </div>
         )}
       </div>
