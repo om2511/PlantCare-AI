@@ -16,6 +16,7 @@ import CareReminders from './pages/dashboard/CareReminders';
 import Analytics from './pages/dashboard/Analytics';
 import Settings from './pages/dashboard/Settings';
 import CompanionPlanting from './pages/dashboard/CompanionPlanting';
+import AdminDashboard from './pages/dashboard/AdminDashboard';
 import NotFound from './pages/NotFound';
 import Home from './pages/Home';
 import About from './pages/About';
@@ -39,6 +40,27 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  return isAdmin ? children : <Navigate to="/dashboard" />;
 };
 
 function App() {
@@ -154,6 +176,15 @@ function App() {
                 <ProtectedRoute>
                   <CompanionPlanting />
                 </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminDashboard />
+                </AdminRoute>
               }
             />
 

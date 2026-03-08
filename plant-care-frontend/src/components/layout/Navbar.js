@@ -44,6 +44,9 @@ const Navbar = () => {
     { path: '/companion-planting', label: 'Companion', icon: '🤝' },
     { path: '/suggestions', label: 'Suggestions', icon: '✨' },
   ];
+  if (user?.role === 'admin') {
+    navLinks.unshift({ path: '/admin', label: 'Admin', icon: '🛠️' });
+  }
   const infoLinks = [
     { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
@@ -215,6 +218,18 @@ const Navbar = () => {
                       </svg>
                       <span>Settings</span>
                     </Link>
+
+                    {user?.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-3 px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      >
+                        <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 3a.75.75 0 01.75.75V5h3V3.75a.75.75 0 011.5 0V5h1.25A2.75 2.75 0 0119 7.75v9.5A2.75 2.75 0 0116.25 20h-8.5A2.75 2.75 0 015 17.25v-9.5A2.75 2.75 0 017.75 5H9V3.75A.75.75 0 019.75 3zM8.5 9.5h7m-7 3h7m-7 3h4" />
+                        </svg>
+                        <span>Admin Panel</span>
+                      </Link>
+                    )}
 
                     <div className="border-t border-gray-100 dark:border-gray-700 my-1"></div>
                     {infoLinks.map((link) => (

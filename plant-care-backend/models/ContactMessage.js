@@ -26,6 +26,20 @@ const contactMessageSchema = new mongoose.Schema({
     trim: true,
     maxlength: 3000
   },
+  status: {
+    type: String,
+    enum: ['new', 'in-progress', 'resolved'],
+    default: 'new'
+  },
+  reviewedAt: {
+    type: Date,
+    default: null
+  },
+  reviewedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   meta: {
     userAgent: {
       type: String,

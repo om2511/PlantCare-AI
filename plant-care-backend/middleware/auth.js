@@ -1,6 +1,14 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const resolveRoleForEmail = (email) => {
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  if (!adminEmail || !email) {
+    return 'user';
+  }
+  return email.trim().toLowerCase() === adminEmail ? 'admin' : 'user';
+};
+
 const protect = async (req, res, next) => {
   let token;
 
@@ -23,6 +31,12 @@ const protect = async (req, res, next) => {
         });
       }
 
+      const expectedRole = resolveRoleForEmail(req.user.email);
+      if (req.user.role !== expectedRole) {
+        req.user.role = expectedRole;
+        await req.user.save({ validateBeforeSave: false });
+      }
+
       next(); // Proceed to next middleware/route
     } catch (error) {
       console.error('Auth middleware error:', error.message);
@@ -41,4 +55,15 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const adminOnly = (req, res, next) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Admin access required'
+    });
+  }
+
+  next();
+};
+
+module.exports = { protect, adminOnly };

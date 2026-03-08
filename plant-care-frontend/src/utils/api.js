@@ -133,7 +133,18 @@ export const diseaseAPI = {
 
 // Contact API calls
 export const contactAPI = {
-  submitMessage: (payload) => api.post('/contact', payload)
+  submitMessage: (payload) => api.post('/contact', payload),
+  getMessages: (limit = 50) => api.get(`/contact/messages?limit=${limit}`)
+};
+
+// Admin API calls
+export const adminAPI = {
+  getOverview: () => api.get('/admin/overview'),
+  getUsers: (limit = 100) => api.get(`/admin/users?limit=${limit}`),
+  getPlants: (limit = 100) => api.get(`/admin/plants?limit=${limit}`),
+  getContactMessages: (limit = 100) => api.get(`/admin/contact-messages?limit=${limit}`),
+  updateContactMessageStatus: (messageId, status) =>
+    api.patch(`/admin/contact-messages/${messageId}/status`, { status })
 };
 
 export default api;

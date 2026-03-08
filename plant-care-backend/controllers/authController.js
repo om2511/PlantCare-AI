@@ -10,6 +10,25 @@ const generateToken = (id) => {
   });
 };
 
+const resolveRoleForEmail = (email) => {
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  if (!adminEmail || !email) {
+    return 'user';
+  }
+  return email.trim().toLowerCase() === adminEmail ? 'admin' : 'user';
+};
+
+const syncRoleIfNeeded = async (user) => {
+  if (!user) {
+    return;
+  }
+  const expectedRole = resolveRoleForEmail(user.email);
+  if (user.role !== expectedRole) {
+    user.role = expectedRole;
+    await user.save({ validateBeforeSave: false });
+  }
+};
+
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -39,6 +58,7 @@ const register = async (req, res) => {
       name,
       email,
       password,
+      role: resolveRoleForEmail(email),
       location,
       balconyType,
       sunlightHours
@@ -52,6 +72,7 @@ const register = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role,
           location: user.location,
           balconyType: user.balconyType,
           sunlightHours: user.sunlightHours,
@@ -102,6 +123,8 @@ const login = async (req, res) => {
       });
     }
 
+    await syncRoleIfNeeded(user);
+
     // Send response
     res.status(200).json({
       success: true,
@@ -110,6 +133,7 @@ const login = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         location: user.location,
         balconyType: user.balconyType,
         sunlightHours: user.sunlightHours,
@@ -132,6 +156,7 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
+    await syncRoleIfNeeded(user);
     
     res.status(200).json({
       success: true,
@@ -181,6 +206,7 @@ const updateProfile = async (req, res) => {
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
+        role: updatedUser.role,
         location: updatedUser.location,
         balconyType: updatedUser.balconyType,
         sunlightHours: updatedUser.sunlightHours

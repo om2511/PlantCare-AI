@@ -53,24 +53,9 @@ const submitContactMessage = async (req, res) => {
 
 // @desc    Get submitted contact messages (admin only)
 // @route   GET /api/contact/messages
-// @access  Private (admin email match)
+// @access  Private (admin)
 const getContactMessages = async (req, res) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-    if (!adminEmail) {
-      return res.status(500).json({
-        success: false,
-        message: 'ADMIN_EMAIL is not configured'
-      });
-    }
-
-    if (!req.user?.email || req.user.email.toLowerCase() !== adminEmail) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to view contact messages'
-      });
-    }
-
     const limit = Math.min(parseInt(req.query.limit || '50', 10), 200);
     const messages = await ContactMessage.find()
       .sort({ createdAt: -1 })

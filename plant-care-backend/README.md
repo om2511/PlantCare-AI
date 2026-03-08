@@ -101,6 +101,13 @@ Server runs on http://localhost:5000
 - `POST /api/contact` - Submit public contact/support message
 - `GET /api/contact/messages` - View submitted messages (admin only)
 
+### Admin
+- `GET /api/admin/overview` - Platform overview metrics (admin only)
+- `GET /api/admin/users` - List users (admin only)
+- `GET /api/admin/plants` - List plants with owners (admin only)
+- `GET /api/admin/contact-messages` - List contact messages (admin only)
+- `PATCH /api/admin/contact-messages/:id/status` - Update message status (`new`, `in-progress`, `resolved`) (admin only)
+
 ## Project Structure
 ```
 backend/

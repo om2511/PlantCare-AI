@@ -110,7 +110,7 @@ git push -u origin main
    | `VAPID_EMAIL` | Contact email for web push (e.g., `mailto:you@example.com`) |
    | `VAPID_PUBLIC_KEY` | Web Push VAPID public key |
    | `VAPID_PRIVATE_KEY` | Web Push VAPID private key |
-   | `ADMIN_EMAIL` | Admin account email allowed to read contact submissions |
+   | `ADMIN_EMAIL` | Admin account email that is automatically granted admin role and access to admin APIs |
    | `FRONTEND_URL` | Leave empty for now (add after frontend deploy) |
 
 6. Click **Create Web Service**

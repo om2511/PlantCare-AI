@@ -41,6 +41,7 @@ app.use('/api/water-quality', require('./routes/waterQuality'));
 app.use('/api/disease', require('./routes/disease'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/contact', require('./routes/contact'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check route
 app.get('/', (req, res) => {
