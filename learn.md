@@ -21,3 +21,5 @@
 2026-03-09: When adding bulk routes like /contact-messages/resolved alongside /contact-messages/:id, keep the static route definition before parameterized routes to avoid accidental path capture.
 
 2026-03-09: For admin tables with filters and pagination, mutation handlers should re-fetch the affected section from server instead of relying on optimistic local edits, because page boundaries and totals can shift after delete/status operations.
+
+2026-03-09: For Vercel-hosted SPAs, a filesystem-first fallback config is safer than regex-based rewrite exclusions when static SEO files like sitemap.xml and robots.txt must be served reliably to crawlers.
