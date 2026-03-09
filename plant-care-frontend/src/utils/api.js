@@ -140,15 +140,16 @@ export const contactAPI = {
 // Admin API calls
 export const adminAPI = {
   getOverview: () => api.get('/admin/overview'),
-  getUsers: (limit = 100) => api.get(`/admin/users?limit=${limit}`),
+  getUsers: (params = {}) => api.get('/admin/users', { params }),
   updateUserBlockStatus: (userId, isBlocked, reason = '') =>
     api.patch(`/admin/users/${userId}/block-status`, { isBlocked, reason }),
   deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
-  getPlants: (limit = 100) => api.get(`/admin/plants?limit=${limit}`),
-  getContactMessages: (limit = 100) => api.get(`/admin/contact-messages?limit=${limit}`),
+  getPlants: (params = {}) => api.get('/admin/plants', { params }),
+  getContactMessages: (params = {}) => api.get('/admin/contact-messages', { params }),
   updateContactMessageStatus: (messageId, status) =>
     api.patch(`/admin/contact-messages/${messageId}/status`, { status }),
-  deleteContactMessage: (messageId) => api.delete(`/admin/contact-messages/${messageId}`)
+  deleteContactMessage: (messageId) => api.delete(`/admin/contact-messages/${messageId}`),
+  deleteResolvedContactMessages: () => api.delete('/admin/contact-messages/resolved')
 };
 
 export default api;

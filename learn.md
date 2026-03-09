@@ -17,3 +17,7 @@
 2026-03-08: Centralizing admin authorization with role-based middleware is safer than per-controller email checks because it prevents fragmented access control logic and keeps all admin endpoints consistently protected.
 
 2026-03-08: For shared admin+user accounts, role-based UI should be route-aware instead of globally restrictive; otherwise admin access unintentionally removes normal user workflows.
+
+2026-03-09: When adding bulk routes like /contact-messages/resolved alongside /contact-messages/:id, keep the static route definition before parameterized routes to avoid accidental path capture.
+
+2026-03-09: For admin tables with filters and pagination, mutation handlers should re-fetch the affected section from server instead of relying on optimistic local edits, because page boundaries and totals can shift after delete/status operations.

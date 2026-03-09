@@ -12,6 +12,20 @@ const parseLimit = (rawLimit, fallback, hardMax) => {
   return Math.min(parsed, hardMax);
 };
 
+const parsePage = (rawPage, fallback = 1) => {
+  const parsed = Number.parseInt(rawPage, 10);
+  if (Number.isNaN(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
+};
+
+const daysAgo = (days) => {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date;
+};
+
 // @desc    Get admin dashboard overview
 // @route   GET /api/admin/overview
 // @access  Private (admin)
@@ -25,6 +39,11 @@ const getAdminOverview = async (req, res) => {
       totalCareLogs,
       totalMessages,
       newMessages,
+      inProgressMessages,
+      resolvedMessages,
+      usersLast7Days,
+      plantsLast7Days,
+      messagesLast7Days,
       recentUsers,
       recentMessages
     ] = await Promise.all([
@@ -35,6 +54,11 @@ const getAdminOverview = async (req, res) => {
       CareLog.countDocuments(),
       ContactMessage.countDocuments(),
       ContactMessage.countDocuments({ status: 'new' }),
+      ContactMessage.countDocuments({ status: 'in-progress' }),
+      ContactMessage.countDocuments({ status: 'resolved' }),
+      User.countDocuments({ createdAt: { $gte: daysAgo(7) } }),
+      Plant.countDocuments({ createdAt: { $gte: daysAgo(7) } }),
+      ContactMessage.countDocuments({ createdAt: { $gte: daysAgo(7) } }),
       User.find().select('name email role createdAt').sort({ createdAt: -1 }).limit(6).lean(),
       ContactMessage.find()
         .select('name email subject status createdAt')
@@ -55,6 +79,16 @@ const getAdminOverview = async (req, res) => {
           contactMessages: totalMessages,
           unreadContactMessages: newMessages
         },
+        messageStatusCounts: {
+          new: newMessages,
+          inProgress: inProgressMessages,
+          resolved: resolvedMessages
+        },
+        recentActivity: {
+          usersLast7Days,
+          plantsLast7Days,
+          messagesLast7Days
+        },
         recentUsers,
         recentMessages
       }
@@ -64,6 +98,28 @@ const getAdminOverview = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch admin overview'
+    });
+  }
+};
+
+// @desc    Delete all resolved contact messages
+// @route   DELETE /api/admin/contact-messages/resolved
+// @access  Private (admin)
+const deleteResolvedContactMessages = async (req, res) => {
+  try {
+    const deleteResult = await ContactMessage.deleteMany({ status: 'resolved' });
+    res.status(200).json({
+      success: true,
+      message: 'Resolved contact messages deleted successfully',
+      data: {
+        deletedCount: deleteResult.deletedCount || 0
+      }
+    });
+  } catch (error) {
+    console.error('Delete resolved contact messages error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete resolved contact messages'
     });
   }
 };
@@ -177,16 +233,49 @@ const deleteUserAsAdmin = async (req, res) => {
 // @access  Private (admin)
 const getUsers = async (req, res) => {
   try {
-    const limit = parseLimit(req.query.limit, 100, 300);
-    const users = await User.find()
+    const limit = parseLimit(req.query.limit, 20, 300);
+    const page = parsePage(req.query.page, 1);
+    const status = String(req.query.status || 'all');
+    const role = String(req.query.role || 'all');
+    const search = String(req.query.search || '').trim();
+
+    const query = {};
+    if (status === 'blocked') {
+      query.isBlocked = true;
+    } else if (status === 'active') {
+      query.isBlocked = false;
+    }
+    if (role === 'admin' || role === 'user') {
+      query.role = role;
+    }
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const total = await User.countDocuments(query);
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const safePage = Math.min(page, totalPages);
+    const skip = (safePage - 1) * limit;
+
+    const users = await User.find(query)
       .select('-password')
       .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(limit)
       .lean();
 
     res.status(200).json({
       success: true,
       count: users.length,
+      pagination: {
+        page: safePage,
+        limit,
+        total,
+        totalPages
+      },
       data: users
     });
   } catch (error) {
@@ -203,17 +292,59 @@ const getUsers = async (req, res) => {
 // @access  Private (admin)
 const getPlants = async (req, res) => {
   try {
-    const limit = parseLimit(req.query.limit, 100, 300);
-    const plants = await Plant.find()
+    const limit = parseLimit(req.query.limit, 20, 300);
+    const page = parsePage(req.query.page, 1);
+    const status = String(req.query.status || 'all');
+    const category = String(req.query.category || 'all');
+    const search = String(req.query.search || '').trim();
+
+    const query = {};
+    if (status !== 'all') {
+      query.status = status;
+    }
+    if (category !== 'all') {
+      query.category = category;
+    }
+
+    if (search) {
+      const matchingUsers = await User.find({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ]
+      }).select('_id');
+
+      const matchingUserIds = matchingUsers.map((item) => item._id);
+      query.$or = [
+        { nickname: { $regex: search, $options: 'i' } },
+        { species: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        ...(matchingUserIds.length ? [{ userId: { $in: matchingUserIds } }] : [])
+      ];
+    }
+
+    const total = await Plant.countDocuments(query);
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const safePage = Math.min(page, totalPages);
+    const skip = (safePage - 1) * limit;
+
+    const plants = await Plant.find(query)
       .select('nickname species category status userId createdAt updatedAt')
       .populate('userId', 'name email role')
       .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(limit)
       .lean();
 
     res.status(200).json({
       success: true,
       count: plants.length,
+      pagination: {
+        page: safePage,
+        limit,
+        total,
+        totalPages
+      },
       data: plants
     });
   } catch (error) {
@@ -230,15 +361,44 @@ const getPlants = async (req, res) => {
 // @access  Private (admin)
 const getAdminContactMessages = async (req, res) => {
   try {
-    const limit = parseLimit(req.query.limit, 100, 300);
-    const messages = await ContactMessage.find()
+    const limit = parseLimit(req.query.limit, 20, 300);
+    const page = parsePage(req.query.page, 1);
+    const status = String(req.query.status || 'all');
+    const search = String(req.query.search || '').trim();
+
+    const query = {};
+    if (status !== 'all') {
+      query.status = status;
+    }
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { subject: { $regex: search, $options: 'i' } },
+        { message: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const total = await ContactMessage.countDocuments(query);
+    const totalPages = Math.max(Math.ceil(total / limit), 1);
+    const safePage = Math.min(page, totalPages);
+    const skip = (safePage - 1) * limit;
+
+    const messages = await ContactMessage.find(query)
       .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(limit)
       .lean();
 
     res.status(200).json({
       success: true,
       count: messages.length,
+      pagination: {
+        page: safePage,
+        limit,
+        total,
+        totalPages
+      },
       data: messages
     });
   } catch (error) {
@@ -333,6 +493,7 @@ module.exports = {
   getAdminContactMessages,
   updateContactMessageStatus,
   deleteContactMessage,
+  deleteResolvedContactMessages,
   updateUserBlockStatus,
   deleteUserAsAdmin
 };
