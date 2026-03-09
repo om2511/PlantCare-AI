@@ -61,12 +61,16 @@ const Navbar = () => {
     { path: '/companion-planting', label: 'Companion', icon: '🤝' },
     { path: '/suggestions', label: 'Suggestions', icon: '✨' },
   ];
+  const mobileUserExtraLinks = [
+    { path: '/profile', label: 'Profile', icon: '👤' },
+    { path: '/settings', label: 'Settings', icon: '⚙️' },
+  ];
   const navLinks = isOnAdminRoute
     ? [{ path: '/admin', label: 'Admin', icon: '🛠️' }]
     : primaryUserNavLinks;
   const mobileNavLinks = isOnAdminRoute
-    ? [{ path: '/admin', label: 'Admin', icon: '🛠️' }]
-    : [...primaryUserNavLinks, ...moreUserNavLinks];
+    ? []
+    : [...primaryUserNavLinks, ...moreUserNavLinks, ...mobileUserExtraLinks];
   const hasMoreNav = !isOnAdminRoute;
   const infoLinks = [
     { path: '/about', label: 'About' },
