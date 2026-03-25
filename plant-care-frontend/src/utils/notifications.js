@@ -55,10 +55,28 @@ export const subscribeToNotifications = async () => {
 
   // 2. Wait for the service worker to be ready
   const registration = await navigator.serviceWorker.ready;
+  const token = localStorage.getItem('token');
 
-  // If already subscribed, re-use existing subscription
+  const saveSubscription = async (subscription) => {
+    const saveRes = await fetch(`${API_URL}/notifications/subscribe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(subscription.toJSON())
+    });
+    if (!saveRes.ok) {
+      const savePayload = await saveRes.json().catch(() => ({}));
+      throw new Error(savePayload?.message || 'Failed to save push subscription');
+    }
+  };
+
+  // If already subscribed, re-sync it to backend in case server records were lost
   const existingSubscription = await registration.pushManager.getSubscription();
   if (existingSubscription) {
+    await saveSubscription(existingSubscription);
+    console.log('✅ Existing push subscription re-synced');
     return existingSubscription;
   }
 
@@ -69,19 +87,7 @@ export const subscribeToNotifications = async () => {
   });
 
   // 4. Send subscription to our backend
-  const token = localStorage.getItem('token');
-  const saveRes = await fetch(`${API_URL}/notifications/subscribe`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify(subscription.toJSON())
-  });
-  if (!saveRes.ok) {
-    const savePayload = await saveRes.json().catch(() => ({}));
-    throw new Error(savePayload?.message || 'Failed to save push subscription');
-  }
+  await saveSubscription(subscription);
 
   console.log('✅ Push subscription saved');
   return subscription;

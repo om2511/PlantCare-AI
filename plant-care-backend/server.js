@@ -70,13 +70,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Daily plant reminders at 8:00 AM Asia/Kolkata
-cron.schedule('0 8 * * *', () => {
-  console.log('⏰ Cron: sending daily plant reminders');
-  sendDailyPlantReminders();
-}, {
-  timezone: 'Asia/Kolkata'
-});
+// Keep in-process cron opt-in only. Production reminder delivery should use a dedicated scheduler.
+if (process.env.ENABLE_IN_APP_CRON === 'true') {
+  cron.schedule('0 8 * * *', () => {
+    console.log('⏰ Cron: sending daily plant reminders');
+    sendDailyPlantReminders();
+  }, {
+    timezone: 'Asia/Kolkata'
+  });
+}
 
 // Start server
 const PORT = process.env.PORT || 5000;

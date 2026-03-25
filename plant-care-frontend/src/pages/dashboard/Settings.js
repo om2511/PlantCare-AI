@@ -1,15 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { getPermissionStatus, subscribeToNotifications, unsubscribeFromNotifications } from '../../utils/notifications';
+import { notificationAPI } from '../../utils/api';
 
 const Settings = () => {
   const { darkMode, toggleDarkMode } = useTheme();
   const { user } = useAuth();
   const [notificationError, setNotificationError] = useState('');
   const [notificationBusy, setNotificationBusy] = useState(false);
+  const [testBusy, setTestBusy] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState(null);
+  const [notificationMessage, setNotificationMessage] = useState('');
   const [permissionStatus, setPermissionStatus] = useState(getPermissionStatus());
   const [notifications, setNotifications] = useState({
     careReminders: localStorage.getItem('notif_careReminders') !== 'false',
@@ -21,6 +25,19 @@ const Settings = () => {
     measurement: localStorage.getItem('unit_measurement') || 'metric'
   });
 
+  useEffect(() => {
+    const loadNotificationStatus = async () => {
+      try {
+        const response = await notificationAPI.getStatus();
+        setNotificationStatus(response.data.data);
+      } catch (error) {
+        setNotificationStatus(null);
+      }
+    };
+
+    loadNotificationStatus();
+  }, []);
+
   // Handle notification toggle
   const handleNotificationChange = async (key) => {
     const newValue = !notifications[key];
@@ -28,13 +45,18 @@ const Settings = () => {
 
     if (key === 'careReminders') {
       setNotificationBusy(true);
+      setNotificationMessage('');
       try {
         if (newValue) {
           await subscribeToNotifications();
+          setNotificationMessage('Notifications enabled and subscription synced.');
         } else {
           await unsubscribeFromNotifications();
+          setNotificationMessage('Notifications disabled.');
         }
         setPermissionStatus(getPermissionStatus());
+        const response = await notificationAPI.getStatus();
+        setNotificationStatus(response.data.data);
       } catch (error) {
         setNotificationError(error.message || 'Failed to update notification settings');
         setNotificationBusy(false);
@@ -64,6 +86,23 @@ const Settings = () => {
       }
     });
     alert('Cache cleared successfully!');
+  };
+
+  const sendTestNotification = async () => {
+    setNotificationError('');
+    setNotificationMessage('');
+    setTestBusy(true);
+    try {
+      await subscribeToNotifications();
+      await notificationAPI.sendTest();
+      const response = await notificationAPI.getStatus();
+      setNotificationStatus(response.data.data);
+      setNotificationMessage('Test notification sent. Check this device now.');
+    } catch (error) {
+      setNotificationError(error.response?.data?.message || error.message || 'Failed to send test notification');
+    } finally {
+      setTestBusy(false);
+    }
   };
 
   return (
@@ -156,9 +195,31 @@ const Settings = () => {
                   {notificationError}
                 </div>
               )}
+              {notificationMessage && (
+                <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-500/50 dark:bg-emerald-900/20 dark:text-emerald-300">
+                  {notificationMessage}
+                </div>
+              )}
               <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
                 Browser permission status: <span className="font-semibold capitalize">{permissionStatus}</span>
               </p>
+              <div className="mb-4 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:bg-gray-700/60 dark:text-gray-300">
+                <p>Server push configured: <span className="font-semibold">{notificationStatus?.pushConfigured ? 'Yes' : 'No'}</span></p>
+                <p>Saved device subscriptions: <span className="font-semibold">{notificationStatus?.subscriptionCount ?? 0}</span></p>
+              </div>
+              <div className="mb-5 flex flex-wrap gap-3">
+                <button
+                  onClick={sendTestNotification}
+                  disabled={testBusy || notificationBusy}
+                  className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-colors ${
+                    testBusy || notificationBusy
+                      ? 'cursor-not-allowed bg-gray-400'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  {testBusy ? 'Sending Test...' : 'Send Test Notification'}
+                </button>
+              </div>
 
               <div className="space-y-4">
                 {/* Care Reminders */}

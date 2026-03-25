@@ -35,3 +35,26 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      - key: ENABLE_IN_APP_CRON
+        value: "false"
+  - type: cron
+    name: plantcare-reminders
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install --legacy-peer-deps
+    schedule: "30 2 * * *"
+    startCommand: npm run send-reminders
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: VAPID_EMAIL
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false

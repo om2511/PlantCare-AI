@@ -152,4 +152,9 @@ export const adminAPI = {
   deleteResolvedContactMessages: () => api.delete('/admin/contact-messages/resolved')
 };
 
+export const notificationAPI = {
+  getStatus: () => api.get('/notifications/status'),
+  sendTest: () => api.post('/notifications/test')
+};
+
 export default api;

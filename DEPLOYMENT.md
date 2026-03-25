@@ -112,10 +112,30 @@ git push -u origin main
    | `VAPID_PRIVATE_KEY` | Web Push VAPID private key |
    | `ADMIN_EMAIL` | Admin account email that is automatically granted admin role and access to admin APIs |
    | `FRONTEND_URL` | Leave empty for now (add after frontend deploy) |
+   | `ENABLE_IN_APP_CRON` | `false` |
 
 6. Click **Create Web Service**
 7. Wait for deployment to complete (first deploy takes 5-10 minutes)
 8. Copy your backend URL (e.g., `https://plantcare-api.onrender.com`)
+
+### Step 4A: Create Reminder Cron Service on Render
+
+The web service is on the free plan and may sleep, so reminder delivery should not depend on the web server process. Create a separate Render cron service:
+
+1. In Render, click **New** > **Cron Job**
+2. Choose the same backend repository and root directory: `plant-care-backend`
+3. Configure:
+   - **Name**: `plantcare-reminders`
+   - **Build Command**: `npm install --legacy-peer-deps`
+   - **Start Command**: `npm run send-reminders`
+   - **Schedule**: `30 2 * * *` (runs daily at 02:30 UTC / 08:00 IST)
+4. Add environment variables:
+   - `NODE_ENV=production`
+   - `MONGO_URI`
+   - `JWT_SECRET`
+   - `VAPID_EMAIL`
+   - `VAPID_PUBLIC_KEY`
+   - `VAPID_PRIVATE_KEY`
 
 ---
 
@@ -158,7 +178,8 @@ git push -u origin main
    - User registration and login
    - Adding a plant
    - Disease detection (with image upload)
-   - Care reminders
+   - Notification test from Settings page
+   - Care reminders after cron job deployment
    - AI suggestions
 
 ---

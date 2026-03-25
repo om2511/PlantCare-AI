@@ -101,6 +101,13 @@ Server runs on http://localhost:5000
 - `POST /api/contact` - Submit public contact/support message
 - `GET /api/contact/messages` - View submitted messages (admin only)
 
+### Notifications
+- `GET /api/notifications/vapid-key` - Get VAPID public key
+- `POST /api/notifications/subscribe` - Save or refresh browser push subscription
+- `DELETE /api/notifications/unsubscribe` - Remove browser push subscription
+- `GET /api/notifications/status` - Get notification diagnostics for current user
+- `POST /api/notifications/test` - Send a test notification to current user
+
 ### Admin
 - `GET /api/admin/overview` - Platform overview metrics (admin only)
 - `GET /api/admin/users` - List users (admin only)

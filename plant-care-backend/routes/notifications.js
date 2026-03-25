@@ -4,11 +4,15 @@ const { protect } = require('../middleware/auth');
 const {
   getVapidPublicKey,
   subscribe,
-  unsubscribe
+  unsubscribe,
+  sendTestNotification,
+  getNotificationStatus
 } = require('../controllers/notificationController');
 
 router.get('/vapid-key', getVapidPublicKey);
 router.post('/subscribe', protect, subscribe);
 router.delete('/unsubscribe', protect, unsubscribe);
+router.post('/test', protect, sendTestNotification);
+router.get('/status', protect, getNotificationStatus);
 
 module.exports = router;
