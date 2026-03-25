@@ -60,12 +60,10 @@ const Navbar = () => {
     { path: '/water-quality', label: 'Water', icon: '💧' },
     { path: '/companion-planting', label: 'Companion', icon: '🤝' },
     { path: '/suggestions', label: 'Suggestions', icon: '✨' },
-    { path: '/settings', label: 'Settings', icon: '⚙️' },
-  ];
-  const mobileUserExtraLinks = [
     { path: '/profile', label: 'Profile', icon: '👤' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
   ];
+  const mobileUserExtraLinks = [];
   const navLinks = isOnAdminRoute
     ? [{ path: '/admin', label: 'Admin', icon: '🛠️' }]
     : primaryUserNavLinks;
