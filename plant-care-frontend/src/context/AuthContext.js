@@ -19,13 +19,39 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is logged in on mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
-    
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const hydrateUser = async () => {
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch (err) {
+          localStorage.removeItem('user');
+        }
+      }
+
+      try {
+        const response = await authAPI.getProfile();
+        if (response.data.success) {
+          localStorage.setItem('user', JSON.stringify(response.data.data));
+          setUser(response.data.data);
+        }
+      } catch (err) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    hydrateUser();
   }, []);
 
   // Register user

@@ -73,6 +73,7 @@ const register = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          createdAt: user.createdAt,
           location: user.location,
           balconyType: user.balconyType,
           sunlightHours: user.sunlightHours,
@@ -141,6 +142,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        createdAt: user.createdAt,
         location: user.location,
         balconyType: user.balconyType,
         sunlightHours: user.sunlightHours,
@@ -214,6 +216,7 @@ const updateProfile = async (req, res) => {
         name: updatedUser.name,
         email: updatedUser.email,
         role: updatedUser.role,
+        createdAt: updatedUser.createdAt,
         location: updatedUser.location,
         balconyType: updatedUser.balconyType,
         sunlightHours: updatedUser.sunlightHours

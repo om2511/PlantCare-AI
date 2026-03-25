@@ -623,7 +623,7 @@ const PlantDetails = () => {
                           isHealthy
                             ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700 hover:border-green-400 dark:hover:border-green-500'
                             : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700 hover:border-red-400 dark:hover:border-red-500'
-                        } ${index === 0 ? 'ring-2 ring-offset-2 dark:ring-offset-gray-800 ' + (isHealthy ? 'ring-green-300 dark:ring-green-600' : 'ring-red-300 dark:ring-red-600') : ''}`}
+                        } ${index === 0 ? 'shadow-md' : ''}`}
                       >
                         <img
                           src={img.url}

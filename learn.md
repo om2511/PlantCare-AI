@@ -25,3 +25,4 @@
 2026-03-09: For Vercel-hosted SPAs, a filesystem-first fallback config is safer than regex-based rewrite exclusions when static SEO files like sitemap.xml and robots.txt must be served reliably to crawlers.
 2026-03-25: In web push flows, an existing browser subscription must still be re-synced to the backend; returning it early causes silent delivery failure when server-side subscription records are missing or stale.
 2026-03-25: Time-based reminder delivery should not depend on an in-process cron running inside a free/sleeping web service. A separate scheduler job is the reliable path.
+2026-03-25: If the frontend persists a trimmed auth payload in localStorage, every profile field that drives UI badges or account metadata must be included there or refreshed from /auth/me on bootstrap. Otherwise pages like Profile drift into stale placeholders such as "Member since N/A" for already logged-in users.
